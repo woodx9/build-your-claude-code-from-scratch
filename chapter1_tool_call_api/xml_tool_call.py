@@ -11,17 +11,21 @@ client = OpenAI(
     api_key=OPENROUTER_API_KEY
 )
 
-# Prompt：要求输出解释+XML
-prompt = """
-You are a helpful assistant.
-When you decide to call a tool, output in this format:
 
+tool = """
 [Some natural language explanation for the user]
 <search_gutenberg_books>
   <search_terms>term1</search_terms>
   <search_terms>term2</search_terms>
   ...
 </search_gutenberg_books>
+"""
+
+prompt = f"""
+You are a helpful assistant.
+When you decide to call a tool, output in this format:
+
+{tool}
 
 Rules:
 1. The <search_gutenberg_books> block must be valid XML.
