@@ -1,6 +1,11 @@
 from openai import OpenAI
 from typing import Dict, Any, Optional, Generator
 import json
+import os
+from dotenv import load_dotenv
+
+# 加载环境变量
+load_dotenv()
 
 
 class APIClient:
@@ -17,9 +22,18 @@ class APIClient:
         单例模式初始化API客户端
         """
         if not self._initialized:
-            self.api_key = "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"
-            self.base_url = "https://openrouter.ai/api/v1"
-            self.model = "anthropic/claude-sonnet-4"
+            # 从环境变量读取配置
+            self.api_key = os.getenv("OPENAI_API_KEY")
+            self.base_url = os.getenv("OPENAI_BASE_URL")
+            self.model = os.getenv("OPENAI_MODEL")
+            
+            # 检查必要的环境变量是否存在
+            if not self.api_key:
+                raise ValueError("OPENAI_API_KEY 环境变量未设置")
+            if not self.base_url:
+                raise ValueError("OPENAI_BASE_URL 环境变量未设置")
+            if not self.model:
+                raise ValueError("OPENAI_MODEL 环境变量未设置")
             
             self.client = OpenAI(
                 api_key=self.api_key,
