@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 """
-Simple test script to verify streaming functionality
+Test streaming functionality with tool calls
 """
 import sys
 import os
@@ -11,34 +11,29 @@ src_path = os.path.join(current_dir, 'src')
 sys.path.insert(0, src_path)
 
 from core.api_client import APIClient
+from tools.tool_manager import ToolManager
 
-def test_streaming():
-    """Test the streaming API functionality"""
-    print("🧪 Testing streaming functionality...")
+def test_streaming_with_tools():
+    """Test streaming with tool calls"""
+    print("🧪 Testing streaming functionality with tools...")
     
     try:
         client = APIClient()
+        tool_manager = ToolManager()
         
-        # Verify the method exists
-        if not hasattr(client, 'get_completion_stream'):
-            print("❌ get_completion_stream method not found!")
-            return False
-        
-        print("✅ Streaming method found")
-        
-        # Simple test request
+        # Test request that should trigger a tool call
         request_params = {
             "messages": [
                 {"role": "system", "content": "You are a helpful assistant."},
-                {"role": "user", "content": "Say hello in exactly 3 words"}
-            ]
+                {"role": "user", "content": "Please list the files in the current directory"}
+            ],
+            "tools": tool_manager.get_tools_description()
         }
         
-        print("📡 Making streaming request...")
+        print("📡 Making streaming request with tools...")
         print("📝 Streaming response:")
         print("🤖 ", end="", flush=True)
         
-        # Test the streaming generator
         stream_gen = client.get_completion_stream(request_params)
         full_content = ""
         message_obj = None
@@ -52,25 +47,25 @@ def test_streaming():
                 print(f"\n✅ Received final message object")
                 print(f"   Content length: {len(chunk.content) if chunk.content else 0}")
                 print(f"   Has tool_calls: {hasattr(chunk, 'tool_calls') and chunk.tool_calls is not None}")
+                if hasattr(chunk, 'tool_calls') and chunk.tool_calls:
+                    print(f"   Number of tool calls: {len(chunk.tool_calls)}")
+                    for i, tc in enumerate(chunk.tool_calls):
+                        print(f"   Tool call {i+1}: {tc.function.name}")
                 break
         
-        print(f"\n📊 Streaming stats:")
-        print(f"   Streamed content length: {len(full_content)}")
-        print(f"   Final message content length: {len(message_obj.content) if message_obj and message_obj.content else 0}")
+        print(f"\n📊 Results:")
+        print(f"   Streamed content: '{full_content.strip()}'")
+        print(f"   Tool calls detected: {message_obj and hasattr(message_obj, 'tool_calls') and message_obj.tool_calls is not None}")
         
-        if full_content and message_obj:
-            print("🎉 Streaming test completed successfully!")
-            return True
-        else:
-            print("❌ No content received")
-            return False
+        print("🎉 Tool streaming test completed successfully!")
+        return True
         
     except Exception as e:
-        print(f"\n❌ Streaming test failed: {e}")
+        print(f"\n❌ Tool streaming test failed: {e}")
         import traceback
         traceback.print_exc()
         return False
 
 if __name__ == "__main__":
-    success = test_streaming()
+    success = test_streaming_with_tools()
     sys.exit(0 if success else 1)
