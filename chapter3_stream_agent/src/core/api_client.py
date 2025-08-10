@@ -1,5 +1,6 @@
 from openai import OpenAI
-from typing import Dict, Any, Optional
+from typing import Dict, Any, Optional, Generator
+import json
 
 
 class APIClient:
@@ -28,7 +29,7 @@ class APIClient:
     
     def get_completion(self, request_params: Dict[str, Any]):
         """
-        发送聊天完成请求并返回消息
+        发送聊天完成请求并返回消息（非流式）
         
         Args:
             request_params: 请求参数字典，包含model, messages等
@@ -36,10 +37,94 @@ class APIClient:
         Returns:
             返回AI助手的回复消息对象
         """
-
         request_params["model"] = self.model
         try:
             response = self.client.chat.completions.create(**request_params)
             return response.choices[0].message
         except Exception as e:
             raise Exception(f"API请求失败: {str(e)}")
+    
+    def get_completion_stream(self, request_params: Dict[str, Any]) -> Generator[str, None, None]:
+        """
+        发送流式聊天完成请求并返回生成器
+        
+        Args:
+            request_params: 请求参数字典，包含model, messages等
+            
+        Yields:
+            逐步返回AI助手的回复内容片段
+        """
+        request_params["model"] = self.model
+        request_params["stream"] = True
+        
+        try:
+            stream = self.client.chat.completions.create(**request_params)
+            
+            full_content = ""
+            tool_calls = []
+            current_tool_call = None
+            
+            for chunk in stream:
+                if chunk.choices[0].delta.content:
+                    content_chunk = chunk.choices[0].delta.content
+                    full_content += content_chunk
+                    yield content_chunk
+                
+                # 处理工具调用
+                if hasattr(chunk.choices[0].delta, 'tool_calls') and chunk.choices[0].delta.tool_calls:
+                    for tool_call_delta in chunk.choices[0].delta.tool_calls:
+                        if tool_call_delta.index is not None:
+                            # 确保有足够的tool_calls槽位
+                            while len(tool_calls) <= tool_call_delta.index:
+                                tool_calls.append({
+                                    'id': None,
+                                    'type': 'function',
+                                    'function': {'name': None, 'arguments': ''}
+                                })
+                            
+                            current_tool_call = tool_calls[tool_call_delta.index]
+                            
+                            if tool_call_delta.id:
+                                current_tool_call['id'] = tool_call_delta.id
+                            
+                            if tool_call_delta.function:
+                                if tool_call_delta.function.name:
+                                    current_tool_call['function']['name'] = tool_call_delta.function.name
+                                if tool_call_delta.function.arguments:
+                                    current_tool_call['function']['arguments'] += tool_call_delta.function.arguments
+            
+            # 创建类似非流式响应的对象
+            class StreamMessage:
+                def __init__(self, content, tool_calls=None):
+                    self.content = content
+                    self.role = "assistant"
+                    self.tool_calls = None
+                    
+                    if tool_calls:
+                        # 转换为OpenAI格式的tool_calls
+                        formatted_tool_calls = []
+                        for tc in tool_calls:
+                            if tc['id'] and tc['function']['name']:
+                                class ToolCall:
+                                    def __init__(self, id, function_name, arguments):
+                                        self.id = id
+                                        self.type = 'function'
+                                        self.function = type('obj', (object,), {
+                                            'name': function_name,
+                                            'arguments': arguments
+                                        })()
+                                
+                                formatted_tool_calls.append(ToolCall(
+                                    tc['id'], 
+                                    tc['function']['name'], 
+                                    tc['function']['arguments']
+                                ))
+                        
+                        if formatted_tool_calls:
+                            self.tool_calls = formatted_tool_calls
+            
+            # 返回最终的消息对象
+            yield StreamMessage(full_content, tool_calls if any(tc['id'] for tc in tool_calls) else None)
+            
+        except Exception as e:
+            raise Exception(f"流式API请求失败: {str(e)}")
