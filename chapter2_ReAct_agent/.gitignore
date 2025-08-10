@@ -1,0 +1,4 @@
+src/__pycache__/
+src/core/__pycache__/
+src/tools/__pycache__/
+src/quickstar.egg-info/
