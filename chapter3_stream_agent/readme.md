@@ -154,3 +154,12 @@ except Exception as e:
 | 代码兼容 | - | ✅ 向后兼容 |
 
 这个框架的核心思想是让 AI 能够"思考"（通过对话）和"行动"（通过工具调用），并且在执行可能有风险的操作时需要用户确认。Chapter3 的流式输出进一步提升了用户体验，让交互更加自然流畅。
+
+## 🎨 UI Changes
+
+### Recent Updates
+- Enhanced user interface for better streaming experience
+- Improved visual feedback during tool execution
+- Updated progress indicators for real-time interactions
+- Optimized layout for better readability in streaming mode
+
