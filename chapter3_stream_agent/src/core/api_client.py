@@ -17,7 +17,7 @@ class APIClient:
         单例模式初始化API客户端
         """
         if not self._initialized:
-            self.api_key = "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"
+            self.api_key = "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"
             self.base_url = "https://openrouter.ai/api/v1"
             self.model = "anthropic/claude-sonnet-4"
             
@@ -93,38 +93,40 @@ class APIClient:
                                 if tool_call_delta.function.arguments:
                                     current_tool_call['function']['arguments'] += tool_call_delta.function.arguments
             
-            # 创建类似非流式响应的对象
-            class StreamMessage:
-                def __init__(self, content, tool_calls=None):
-                    self.content = content
-                    self.role = "assistant"
-                    self.tool_calls = None
-                    
-                    if tool_calls:
-                        # 转换为OpenAI格式的tool_calls
-                        formatted_tool_calls = []
-                        for tc in tool_calls:
-                            if tc['id'] and tc['function']['name']:
-                                class ToolCall:
-                                    def __init__(self, id, function_name, arguments):
-                                        self.id = id
-                                        self.type = 'function'
-                                        self.function = type('obj', (object,), {
-                                            'name': function_name,
-                                            'arguments': arguments
-                                        })()
-                                
-                                formatted_tool_calls.append(ToolCall(
-                                    tc['id'], 
-                                    tc['function']['name'], 
-                                    tc['function']['arguments']
-                                ))
-                        
-                        if formatted_tool_calls:
-                            self.tool_calls = formatted_tool_calls
+            # 创建符合OpenAI ChatCompletionMessage格式的对象
+            from openai.types.chat import ChatCompletionMessage, ChatCompletionMessageFunctionToolCall
+            from openai.types.chat.chat_completion_message_function_tool_call import Function
             
-            # 返回最终的消息对象
-            yield StreamMessage(full_content, tool_calls if any(tc['id'] for tc in tool_calls) else None)
+            # 转换tool_calls为OpenAI标准格式
+            formatted_tool_calls = None
+            if tool_calls and any(tc['id'] for tc in tool_calls):
+                formatted_tool_calls = []
+                for tc in tool_calls:
+                    if tc['id'] and tc['function']['name']:
+                        formatted_tool_calls.append(
+                            ChatCompletionMessageFunctionToolCall(
+                                id=tc['id'],
+                                function=Function(
+                                    name=tc['function']['name'],
+                                    arguments=tc['function']['arguments']
+                                ),
+                                type='function'
+                            )
+                        )
+            
+            # 返回标准的ChatCompletionMessage对象
+            message = ChatCompletionMessage(
+                content=full_content,
+                role="assistant",
+                tool_calls=formatted_tool_calls,
+                refusal=None,
+                annotations=None,
+                audio=None,
+                function_call=None,
+                reasoning=None
+            )
+            
+            yield message
             
         except Exception as e:
             raise Exception(f"流式API请求失败: {str(e)}")

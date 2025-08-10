@@ -7,7 +7,7 @@ import os
 
 # Add src directory to path
 current_dir = os.path.dirname(os.path.abspath(__file__))
-src_path = os.path.join(current_dir, 'src')
+src_path = os.path.join(current_dir, '../src')
 sys.path.insert(0, src_path)
 
 from core.api_client import APIClient

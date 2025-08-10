@@ -6,6 +6,7 @@ from tools.tool_manager import ToolManager
 import asyncio
 from rich.console import Console
 from rich.markdown import Markdown
+from rich.live import Live
 
 
 class Conversation:
@@ -64,10 +65,25 @@ class Conversation:
             print("🤖")
             self._console.print(Markdown(content))
 
-    def print_streaming_content(self, content: str):
+    def start_stream_display(self):
+            self._stream_buffer = ""
+            self._live = Live(console=self._console, refresh_per_second=10)
+            self._live.start()
+
+    def stop_stream_display(self):
+        if hasattr(self, "_live"):
+            self._live.stop()
+            del self._live
+
+    def print_streaming_content(self, chunk: str):
         """打印流式内容片段"""
-        # 直接输出内容片段，不换行
-        print(content, end='', flush=True)
+        if not hasattr(self, "_stream_buffer"):
+            self._stream_buffer = ""
+
+        self._stream_buffer += chunk
+        if hasattr(self, "_live"):
+            self._live.update(Markdown(self._stream_buffer))
+        
 
     async def start_conversation(self):
         """开始新的会话"""
@@ -94,12 +110,26 @@ class Conversation:
         print("🤖")  # 显示助手开始回复
         
         # 使用流式API获取响应
-        stream_generator = self._api_client.get_completion_stream(request)
-        response_message = None
-        full_content = ""
-        
         try:
-            for chunk in stream_generator:
+            stream_generator = self._api_client.get_completion_stream(request)
+            
+            # 检查stream_generator是否为None
+            if stream_generator is None:
+                raise Exception("Stream generator is None - API client returned no response")
+            
+            response_message = None
+            full_content = ""
+            
+            # 确保stream_generator是可迭代的
+            try:
+                iterator = iter(stream_generator)
+            except TypeError:
+                raise Exception(f"Stream generator is not iterable. Type: {type(stream_generator)}")
+            
+            # 开始流式打印
+            self.start_stream_display() 
+            # 迭代处理流式响应
+            for chunk in iterator:
                 if isinstance(chunk, str):
                     # 这是内容片段
                     full_content += chunk
@@ -108,9 +138,9 @@ class Conversation:
                     # 这是最终的消息对象
                     response_message = chunk
                     break
-            
-            # 确保换行
-            print()
+
+            # 流式输出结束
+            self.stop_stream_display()
             
             # 如果没有获得完整的响应消息，创建一个
             if response_message is None:
@@ -123,10 +153,28 @@ class Conversation:
                 response_message = SimpleMessage(full_content)
             
         except Exception as e:
-            print(f"\n🤖 流式响应处理出错: {e}")
+            (f"\n🤖 流式响应处理出错: {e}")
+            print(f"错误类型: {type(e).__name__}")
+            traceback.print_exc()
+            
             # 回退到非流式模式
-            response_message = self._api_client.get_completion(request)
-            self.print_assistant_messages(response_message.content)
+            try:
+                print("🤖 尝试使用非流式模式...")
+                response_message = self._api_client.get_completion(request)
+                self.print_assistant_messages(response_message.content)
+            except Exception as fallback_error:
+                print(f"🤖 非流式模式也失败: {fallback_error}")
+                # 创建一个错误响应
+                class ErrorMessage:
+                    def __init__(self, error_msg):
+                        self.content = f"抱歉，我遇到了技术问题: {error_msg}"
+                        self.role = "assistant"
+                        self.tool_calls = None
+                
+                response_message = ErrorMessage(str(e))
+                self.print_assistant_messages(response_message.content)
+                # 直接结束
+                return
         
         # 将响应添加到消息历史
         self.messages.append({
@@ -149,7 +197,7 @@ class Conversation:
         """处理工具调用"""
         for tool_call in tool_calls:
             try:
-                args = json.loads(tool_call.function.arguments)
+             args = json.loads(tool_call.function.arguments)
             except json.JSONDecodeError as e:
                 self.print_assistant_messages(f"工具参数解析失败: {e}")
                 self.messages.append({
