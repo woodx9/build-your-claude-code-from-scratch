@@ -1,5 +1,5 @@
 """
-Conversation management with refactored UI components.
+Conversation management with refactored UI components and history manager integration.
 """
 
 import json
@@ -7,12 +7,14 @@ import traceback
 from core.api_client import APIClient
 from tools.tool_manager import ToolManager
 from ui.ui_manager import UIManager
+from .history.history_manager import HistoryManager
 
 
 class Conversation:
     """
     Main conversation class that handles the chat flow and tool interactions.
     UI responsibilities have been extracted to the UIManager.
+    History management is handled by the HistoryManager.
     """
     
     _instance = None
@@ -20,6 +22,7 @@ class Conversation:
     _tool_manager = None
     _api_client = None
     _ui_manager = None
+    _history_manager = None
 
     def __new__(cls):
         """Singleton pattern implementation."""
@@ -30,19 +33,31 @@ class Conversation:
     def __init__(self):
         """Initialize the conversation with required managers."""
         if not self._initialized:
-            self.messages = []
             self._tool_manager = ToolManager()
             self._api_client = APIClient()
             self._ui_manager = UIManager()
+            self._history_manager = HistoryManager()
             self._initialized = True
+
+    @property
+    def messages(self):
+        """Get current messages from history manager."""
+        return self._history_manager.get_current_messages()
+    
+    
+    def add_message(self, message):
+        """Add message through history manager."""
+        self._history_manager.add_message(message)
 
     async def start_conversation(self):
         """Start a new conversation."""
-        self.messages = []
-        self.messages.append({"role": "system", "content": "You are a helpful assistant. "})
+        # Initialize with system message
+        system_message = {"role": "system", "content": "You are a helpful assistant. "}
+        self.add_message(system_message)
         
         user_input = await self._ui_manager.get_user_input()
-        self.messages.append({"role": "user", "content": user_input})
+        user_message = {"role": "user", "content": user_input}
+        self.add_message(user_message)
 
         try:
             await self._recursive_message_handling()
@@ -52,9 +67,13 @@ class Conversation:
 
     async def _recursive_message_handling(self):
         """
-        Recursively handle messages with streaming support.
+        Recursively handle messages with streaming support and token usage tracking.
         This is the main conversation loop.
         """
+
+        # Check for auto compression
+        self._history_manager.auto_messages_compression()
+
         request = {
             "messages": self.messages,
             "tools": self._tool_manager.get_tools_description(),
@@ -73,6 +92,7 @@ class Conversation:
             
             response_message = None
             full_content = ""
+            token_usage = None
             
             # Ensure stream_generator is iterable
             try:
@@ -89,10 +109,16 @@ class Conversation:
                     # This is content chunk
                     full_content += chunk
                     self._ui_manager.print_streaming_content(chunk)
-                else:
-                    # This is the final message object
+                elif hasattr(chunk, 'role') and chunk.role == 'assistant':
+                    # This is the final message object (ChatCompletionMessage)
                     response_message = chunk
+                    # Extract usage information if present
+                    if hasattr(chunk, 'usage') and chunk.usage:
+                        token_usage = chunk.usage
                     break
+                elif hasattr(chunk, 'usage') and chunk.usage:
+                    # This is standalone token usage information
+                    token_usage = chunk.usage
 
             # End streaming display
             self._ui_manager.stop_stream_display()
@@ -100,6 +126,10 @@ class Conversation:
             # If no complete response message, create one
             if response_message is None:
                 response_message = self._create_simple_message(full_content)
+            
+            # Update token usage in history manager
+            if token_usage:
+                self._history_manager.update_token_usage(token_usage)
             
         except Exception as e:
             self._ui_manager.print_error(f"流式响应处理出错: {e}")
@@ -109,8 +139,13 @@ class Conversation:
             # Fallback to non-streaming mode
             try:
                 self._ui_manager.print_info("尝试使用非流式模式...")
-                response_message = self._api_client.get_completion(request)
+                response_message, token_usage = self._api_client.get_completion(request)
                 self._ui_manager.print_assistant_message(response_message.content)
+                
+                # Update token usage in history manager
+                if token_usage:
+                    self._history_manager.update_token_usage(token_usage)
+                    
             except Exception as fallback_error:
                 self._ui_manager.print_error(f"非流式模式也失败: {fallback_error}")
                 # Create error response
@@ -118,12 +153,16 @@ class Conversation:
                 self._ui_manager.print_assistant_message(response_message.content)
                 return
         
-        # Add response to message history
-        self.messages.append({
+        # Add response to message history through history manager
+        assistant_message = {
             "role": "assistant",
             "content": response_message.content,
             "tool_calls": response_message.tool_calls if hasattr(response_message, 'tool_calls') and response_message.tool_calls else None
-        })
+        }
+        self.add_message(assistant_message)
+        
+        # Check for auto compression
+        self._history_manager.auto_messages_compression()
 
         # Handle tool calls
         if hasattr(response_message, 'tool_calls') and response_message.tool_calls is not None and len(response_message.tool_calls) > 0:
@@ -132,7 +171,8 @@ class Conversation:
         else:
             # No tool calls, wait for user input
             user_input = await self._ui_manager.get_user_input()
-            self.messages.append({"role": "user", "content": user_input})
+            user_message = {"role": "user", "content": user_input}
+            self.add_message(user_message)
             await self._recursive_message_handling()
 
     async def _handle_tool_calls(self, tool_calls):
@@ -142,12 +182,13 @@ class Conversation:
                 args = json.loads(tool_call.function.arguments)
             except json.JSONDecodeError as e:
                 self._ui_manager.print_error(f"工具参数解析失败: {e}")
-                self.messages.append({
+                tool_response = {
                     "role": "tool",
                     "tool_call_id": tool_call.id,
                     "name": tool_call.function.name,
                     "content": "tool call failed due to JSONDecodeError"
-                })
+                }
+                self.add_message(tool_response)
                 continue
 
             # Check if user approval is needed
@@ -188,13 +229,14 @@ class Conversation:
             self._add_tool_response(tool_call, f"tool call failed, fail reason: {str(e)}")
 
     def _add_tool_response(self, tool_call, content):
-        """Add tool response to message history."""
-        self.messages.append({
+        """Add tool response to message history through history manager."""
+        tool_message = {
             "role": "tool",
             "tool_call_id": tool_call.id,
             "name": tool_call.function.name,
             "content": content
-        })
+        }
+        self.add_message(tool_message)
 
     def _create_simple_message(self, content):
         """Create a simple message object."""
@@ -215,3 +257,7 @@ class Conversation:
                 self.tool_calls = None
         
         return ErrorMessage(error_msg)
+
+    def print_streaming_content(self, content):
+        """Delegate streaming content printing to UI manager (for compatibility)."""
+        self._ui_manager.print_streaming_content(content)

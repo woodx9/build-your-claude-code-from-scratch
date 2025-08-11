@@ -1,8 +1,11 @@
 from openai import OpenAI
-from typing import Dict, Any, Optional, Generator
+from typing import Dict, Any, Optional, Generator, Tuple
 import json
 import os
 from dotenv import load_dotenv
+from openai.types.chat import ChatCompletionMessage, ChatCompletionMessageFunctionToolCall
+from openai.types.chat.chat_completion_message_function_tool_call import Function
+
 
 # 加载环境变量
 load_dotenv()
@@ -41,35 +44,39 @@ class APIClient:
             )
             self._initialized = True
     
-    def get_completion(self, request_params: Dict[str, Any]):
+    def get_completion(self, request_params: Dict[str, Any]) -> Tuple[Any, Any]:
         """
-        发送聊天完成请求并返回消息（非流式）
+        发送聊天完成请求并返回消息和token使用情况（非流式）
         
         Args:
             request_params: 请求参数字典，包含model, messages等
             
         Returns:
-            返回AI助手的回复消息对象
+            Tuple[message, token_usage]: 返回AI助手的回复消息对象和token使用情况
         """
         request_params["model"] = self.model
         try:
             response = self.client.chat.completions.create(**request_params)
-            return response.choices[0].message
+            message = response.choices[0].message
+            token_usage = response.usage
+                
+            return message, token_usage
         except Exception as e:
             raise Exception(f"API请求失败: {str(e)}")
     
     def get_completion_stream(self, request_params: Dict[str, Any]) -> Generator[str, None, None]:
         """
-        发送流式聊天完成请求并返回生成器
+        发送流式聊天完成请求并返回生成器，包含token使用情况
         
         Args:
             request_params: 请求参数字典，包含model, messages等
             
         Yields:
-            逐步返回AI助手的回复内容片段
+            逐步返回AI助手的回复内容片段，最后返回完整消息对象和token使用情况
         """
         request_params["model"] = self.model
         request_params["stream"] = True
+        request_params["stream_options"] = {"include_usage": True}
         
         try:
             stream = self.client.chat.completions.create(**request_params)
@@ -77,8 +84,14 @@ class APIClient:
             full_content = ""
             tool_calls = []
             current_tool_call = None
+            token_usage = None
             
             for chunk in stream:
+                # Handle token usage information
+                if hasattr(chunk, 'usage') and chunk.usage:
+                    token_usage = chunk.usage
+                    continue
+                
                 if chunk.choices[0].delta.content:
                     content_chunk = chunk.choices[0].delta.content
                     full_content += content_chunk
@@ -107,9 +120,6 @@ class APIClient:
                                 if tool_call_delta.function.arguments:
                                     current_tool_call['function']['arguments'] += tool_call_delta.function.arguments
             
-            # 创建符合OpenAI ChatCompletionMessage格式的对象
-            from openai.types.chat import ChatCompletionMessage, ChatCompletionMessageFunctionToolCall
-            from openai.types.chat.chat_completion_message_function_tool_call import Function
             
             # 转换tool_calls为OpenAI标准格式
             formatted_tool_calls = None
@@ -139,6 +149,10 @@ class APIClient:
                 function_call=None,
                 reasoning=None
             )
+
+            # Add usage information to the message for tracking
+            if token_usage:
+                message.usage = token_usage
             
             yield message
             
