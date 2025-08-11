@@ -127,10 +127,6 @@ class Conversation:
             if response_message is None:
                 response_message = self._create_simple_message(full_content)
             
-            # Update token usage in history manager
-            if token_usage:
-                self._history_manager.update_token_usage(token_usage)
-            
         except Exception as e:
             self._ui_manager.print_error(f"流式响应处理出错: {e}")
             self._ui_manager.print_info(f"错误类型: {type(e).__name__}")
@@ -167,9 +163,14 @@ class Conversation:
         # Handle tool calls
         if hasattr(response_message, 'tool_calls') and response_message.tool_calls is not None and len(response_message.tool_calls) > 0:
             await self._handle_tool_calls(response_message.tool_calls)
+            # Update token usage in history manager
+            if token_usage:
+                self._history_manager.update_token_usage(token_usage)
             await self._recursive_message_handling()
         else:
             # No tool calls, wait for user input
+            if token_usage:
+                self._history_manager.update_token_usage(token_usage)
             user_input = await self._ui_manager.get_user_input()
             user_message = {"role": "user", "content": user_input}
             self.add_message(user_message)

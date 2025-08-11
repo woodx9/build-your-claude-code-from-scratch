@@ -23,7 +23,10 @@ class CmdRunner(BaseAgent):
             )
             
             if result.returncode == 0:
-                return result.stdout
+                if result.stdout.strip():
+                    return result.stdout
+                else:
+                    return "Command executed successfully and no return"
             else:
                 return f"Error: {result.stderr}"
         except subprocess.TimeoutExpired:
