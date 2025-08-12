@@ -1,4 +1,5 @@
 from abc import ABC, abstractmethod
+import copy
 from dataclasses import dataclass
 import os
 from pyexpat.errors import messages
@@ -63,14 +64,19 @@ class HistoryManager(BaseHistoryManager):
     def add_message(self, message) -> None:
         self.messages_history[-1].append(message)
 
+    @property                                                                                                                       
+    def current_context_window(self):                                                                                               
+        """get current context window usage percentage"""                                                                           
+        if not self.history_token_usage or self._model_max_tokens == 0:                                                             
+            return "0.0"                                                                                                            
+        return f"{100 * self.history_token_usage[-1].total_tokens / self._model_max_tokens:.1f}" 
+
     def update_token_usage(self, token_usage) -> None:
         token_usage = TokenUsage(
             input_tokens = token_usage.prompt_tokens,
             output_tokens = token_usage.completion_tokens,
             total_tokens = token_usage.total_tokens
         )
-        if token_usage.total_tokens:
-            self._ui_manager.print_info(f"(context window: {(100 * token_usage.total_tokens / self._model_max_tokens):.1f}%)")
 
         if len(self.history_token_usage) == 0:
             self.history_token_usage.append(token_usage)
@@ -78,7 +84,7 @@ class HistoryManager(BaseHistoryManager):
             self.history_token_usage[-1] = token_usage
 
     def get_current_messages(self) -> any:
-        return self.messages_history[-1]
+        return  copy.deepcopy(self.messages_history[-1])
 
     def _requires_compression(self) -> bool:
         if self._compress_threshold and self.history_token_usage:

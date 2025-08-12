@@ -52,11 +52,21 @@ class Conversation:
     async def start_conversation(self):
         """Start a new conversation."""
         # Initialize with system message
-        system_message = {"role": "system", "content": "You are a helpful assistant. "}
+        system_message = {
+            "role": "system", 
+            "content": [
+                {"type": "text", "text": "You are a helpful assistant. "}
+            ]
+        }
         self.add_message(system_message)
         
         user_input = await self._ui_manager.get_user_input()
-        user_message = {"role": "user", "content": user_input}
+        user_message = {
+            "role": "user", 
+            "content": [
+                {"type": "text", "text": user_input}
+            ]
+        }
         self.add_message(user_message)
 
         try:
@@ -75,7 +85,7 @@ class Conversation:
         self._history_manager.auto_messages_compression()
 
         request = {
-            "messages": self.messages,
+            "messages": self._get_messages_with_cache_mark(),
             "tools": self._tool_manager.get_tools_description(),
         }
         
@@ -148,6 +158,9 @@ class Conversation:
                 response_message = self._create_error_message(str(e))
                 self._ui_manager.print_assistant_message(response_message.content)
                 return
+            
+        if token_usage:
+                self._history_manager.update_token_usage(token_usage)
         
         # Add response to message history through history manager
         assistant_message = {
@@ -164,17 +177,31 @@ class Conversation:
         if hasattr(response_message, 'tool_calls') and response_message.tool_calls is not None and len(response_message.tool_calls) > 0:
             await self._handle_tool_calls(response_message.tool_calls)
             # Update token usage in history manager
-            if token_usage:
-                self._history_manager.update_token_usage(token_usage)
+            self._print_context_window_and_total_cost()
             await self._recursive_message_handling()
         else:
+            self._print_context_window_and_total_cost()
             # No tool calls, wait for user input
-            if token_usage:
-                self._history_manager.update_token_usage(token_usage)
             user_input = await self._ui_manager.get_user_input()
-            user_message = {"role": "user", "content": user_input}
+            user_message = {
+                "role": "user", 
+                "content": [
+                    {"type": "text", "text": user_input}
+                ]
+            }
             self.add_message(user_message)
             await self._recursive_message_handling()
+
+    def _print_context_window_and_total_cost(self):
+        self._ui_manager.print_simple_message(f"(context window: {self._history_manager.current_context_window}%, total cost: {self._api_client.total_cost}$)")
+    
+
+    def _get_messages_with_cache_mark(self):
+        """Get messages with cache mark."""
+        messages = self._history_manager.get_current_messages()                                                                     
+        if messages and "content" in messages[-1] and messages[-1]["content"]:                                                      
+            messages[-1]["content"][-1]["cache_control"] = {"type": "ephemeral"}                                                    
+        return messages  
 
     async def _handle_tool_calls(self, tool_calls):
         """Handle tool calls with user approval when needed."""
@@ -187,7 +214,9 @@ class Conversation:
                     "role": "tool",
                     "tool_call_id": tool_call.id,
                     "name": tool_call.function.name,
-                    "content": "tool call failed due to JSONDecodeError"
+                    "content": [
+                        {"type": "text", "text": "tool call failed due to JSONDecodeError"}
+                    ]
                 }
                 self.add_message(tool_response)
                 continue
@@ -235,7 +264,9 @@ class Conversation:
             "role": "tool",
             "tool_call_id": tool_call.id,
             "name": tool_call.function.name,
-            "content": content
+            "content": [
+                {"type": "text", "text": content}
+            ]
         }
         self.add_message(tool_message)
 

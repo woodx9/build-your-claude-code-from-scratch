@@ -14,7 +14,12 @@ load_dotenv()
 class APIClient:
     _instance = None
     _initialized = False
+    _total_cost = 0
     
+    @property
+    def total_cost(self):
+        return round(self._total_cost, 2)
+
     def __new__(cls):
         if cls._instance is None:
             cls._instance = super().__new__(cls)
@@ -59,6 +64,10 @@ class APIClient:
             response = self.client.chat.completions.create(**request_params)
             message = response.choices[0].message
             token_usage = response.usage
+            cost = getattr(token_usage, 'model_extra', {})                                                                                  
+            if isinstance(cost, dict):                                                                                                      
+                self._total_cost += cost.get("cost", 0)                                                                                     
+            
                 
             return message, token_usage
         except Exception as e:
@@ -90,6 +99,9 @@ class APIClient:
                 # Handle token usage information
                 if hasattr(chunk, 'usage') and chunk.usage:
                     token_usage = chunk.usage
+                    cost = getattr(token_usage, 'model_extra', {})                                                                                  
+                    if isinstance(cost, dict):                                                                                                      
+                        self._total_cost += cost.get("cost", 0)   
                     continue
                 
                 if chunk.choices[0].delta.content:
