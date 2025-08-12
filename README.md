@@ -80,7 +80,9 @@ pip install -r requirements.txt
 
 #### Option 2: Install in Development Mode (Recommended for Development)
 ```bash
-# Install in editable/development mode
+# 或者其他chapter
+cd chapter4_history_control
+
 pip install -e .
 ```
 

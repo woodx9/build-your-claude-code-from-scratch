@@ -78,7 +78,9 @@ pip install -r requirements.txt
 
 #### 二：以开发模式安装（推荐用于开发）
 ```bash
-# 以可编辑/开发模式安装
+# 或者其他chapter
+cd chapter4_history_control
+
 pip install -e .
 ```
 
