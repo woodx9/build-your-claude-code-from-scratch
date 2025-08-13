@@ -28,7 +28,7 @@ class InputHandler:
         return await loop.run_in_executor(None, input, prompt)
 
     
-    async def wait_for_user_approval(self, content: str, emoji: str = "🤖") -> bool:
+    async def wait_for_user_approval(self, content: str, emoji: str = "🤖") -> tuple[bool, str]:
         """
         Wait for user approval (yes/no) for a specific action.
         
@@ -37,20 +37,22 @@ class InputHandler:
             emoji: Emoji to display before the approval request
             
         Returns:
-            True if user approves, False otherwise
+            Tuple of (approval_status, message) where:
+            - approval_status: True if user approves, False otherwise
+            - message: Empty string if approved, user's denial reason if denied
         """
         if emoji:
             print(emoji)
         print("请确认是否执行工具调用: ", content)
-        print("回答 yes 或 no")
+        print("回答 yes 或 no，如果拒绝请说明原因")
         
         while True:
             user_input = await self.get_user_input()
             
             if "yes" in user_input.lower():
-                return True
+                return True, ""
             elif "no" in user_input.lower():
-                return False
+                return False, user_input
             else:
                 print("无效输入，请回答 yes 或 no")
     

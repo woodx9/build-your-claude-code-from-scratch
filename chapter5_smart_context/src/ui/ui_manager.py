@@ -41,9 +41,8 @@ class UIManager:
         """Get user input with specified prompt."""
         return await self.input_handler.get_user_input(prompt)
     
-    
-    async def wait_for_user_approval(self, content: str, emoji: str = "🤖") -> bool:
-        """Wait for user approval for specified content."""
+    async def wait_for_user_approval(self, content: str, emoji: str = "🤖") -> tuple[bool, str]:
+        """Wait for user approval with optional denial message."""
         return await self.input_handler.wait_for_user_approval(content, emoji)
     
     async def get_choice_input(self, prompt: str, choices: list, case_sensitive: bool = False) -> Optional[str]:
@@ -93,7 +92,7 @@ class UIManager:
         self.display_manager.clear_stream_buffer()
     
     # Convenience methods that combine input and display
-    async def confirm_action(self, action_description: str) -> bool:
+    async def confirm_action(self, action_description: str) -> tuple[bool, str]:
         """
         Show action description and ask for confirmation.
         
@@ -101,7 +100,7 @@ class UIManager:
             action_description: Description of the action to confirm
             
         Returns:
-            True if user confirms, False otherwise
+            Tuple of (approval_status, denial_message)
         """
         return await self.wait_for_user_approval(action_description)
     
