@@ -40,7 +40,7 @@ class CmdRunner(BaseAgent):
                 "type": "function",
                 "function": {
                     "name": self.get_tool_name(),
-                    "description": "Execute a shell command on the system, need to require user approval before execution if this command will make a damage to user's computer. you need to make a explanation why you need to run this command.",
+                    "description": self._tool_description(),
                     "parameters": {
                     "type": "object",
                     "properties": {
@@ -66,7 +66,9 @@ class CmdRunner(BaseAgent):
     
     def get_status(self):
        return ""
+    
 
+    # TODO: Read and Edit file will separate as serval tools
     def _tool_description(self):
      return """
 Executes a given bash command in a persistent shell session with optional timeout, user approval, and security measures.
