@@ -5,6 +5,7 @@ Conversation management with refactored UI components and history manager integr
 import json
 import traceback
 from core.api_client import APIClient
+from core.prompt.prompt_manager import PromptManager
 from tools.tool_manager import ToolManager
 from ui.ui_manager import UIManager
 from .history.history_manager import HistoryManager
@@ -23,6 +24,7 @@ class Conversation:
     _api_client = None
     _ui_manager = None
     _history_manager = None
+    _prompt_manager = None
 
     def __new__(cls):
         """Singleton pattern implementation."""
@@ -37,6 +39,7 @@ class Conversation:
             self._api_client = APIClient()
             self._ui_manager = UIManager()
             self._history_manager = HistoryManager()
+            self._prompt_manager = PromptManager()
             self._initialized = True
 
     @property
@@ -55,7 +58,7 @@ class Conversation:
         system_message = {
             "role": "system", 
             "content": [
-                {"type": "text", "text": "You are a helpful assistant. "}
+                {"type": "text", "text": self._prompt_manager.get_system_prompt()}
             ]
         }
         self.add_message(system_message)

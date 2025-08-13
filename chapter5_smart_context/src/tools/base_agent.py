@@ -1,3 +1,6 @@
+from abc import abstractmethod
+
+
 class BaseAgent:
     def __init__(self):
         pass
@@ -6,11 +9,14 @@ class BaseAgent:
     def get_tool_name():
         return "base_agent"
 
+    @abstractmethod
     def act(self, **kwargs):
         pass
 
-    def get_prompt(self):
+    @abstractmethod
+    def json_schema(self):
         pass
 
+    @abstractmethod
     def get_status(self):
         pass
