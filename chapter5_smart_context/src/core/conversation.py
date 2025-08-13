@@ -230,12 +230,12 @@ class Conversation:
 
             if need_user_approve:
                 approval_content = f"工具: {tool_call.function.name}, 参数: {args}"
-                should_execute = await self._ui_manager.wait_for_user_approval(approval_content)
+                should_execute, content = await self._ui_manager.wait_for_user_approval(approval_content)
 
             if should_execute:
                 await self._execute_tool(tool_call, args)
             else:
-                self._add_tool_response(tool_call, "user denied to execute tool")
+                self._add_tool_response(tool_call, f"user denied to execute tool, user input: {content}")
 
     async def _execute_tool(self, tool_call, args):
         """Execute a tool call and handle the response."""
