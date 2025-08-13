@@ -13,7 +13,8 @@ This project demonstrates the progressive development of AI agents, from basic t
 ├── chapter1_tool_call_api/       # Basic tool calling examples (Native Function Call & XML Tool Call)
 ├── chapter2_ReAct_agent/         # Basic ReAct agent implementation
 ├── chapter3_stream_agent/        # Streaming agent with real-time responses
-└── chapter4_history_control/     # Advanced agent with conversation history management
+├── chapter4_history_control/     # Advanced agent with conversation history management
+└── chapter5_smart_context/       # Smart context management with intelligent cropping [NEW]
 ```
 
 ## Features by Chapter
@@ -42,6 +43,19 @@ This project demonstrates the progressive development of AI agents, from basic t
 - **NEW**: Conversation history management
 - **NEW**: Context compression when reaching token limits
 - **NEW**: Memory optimization for long conversations
+
+
+
+### Chapter 5: Smart Context Management [NEW]
+- All features from Chapter 4
+- **NEW**: Smart context cropping with TOP/BOTTOM strategies
+- **NEW**: Intelligent user denial reason capture  
+- **NEW**: Enhanced error handling with unified exception management
+- **NEW**: Singleton pattern for HistoryManager ensuring state consistency
+- **NEW**: SmartContextCropper tool for precise message management
+- **NEW**: Advanced debugging support with VSCode configurations
+- **NEW**: Comprehensive safety guarantees protecting user messages
+
 
 ## Prerequisites
 
@@ -271,3 +285,15 @@ For issues and questions:
 ---
 
 **Note**: This project demonstrates progressive AI agent development. Start with Chapter 1 to understand basic tool calling concepts, then move to Chapter 2 for ReAct patterns, Chapter 3 for streaming capabilities, and finally Chapter 4 for advanced history management.
+
+## Chapter Comparison: Evolution of Features
+
+| Feature | Chapter 1 | Chapter 2 | Chapter 3 | Chapter 4 | Chapter 5 |
+|---------|-----------|-----------|-----------|-----------|-----------|
+| Tool Calling | ✅ Basic | ✅ ReAct | ✅ ReAct | ✅ ReAct | ✅ ReAct |
+| Real-time Streaming | ❌ | ❌ | ✅ NEW | ✅ | ✅ |
+| History Management | ❌ | ❌ | ❌ | ✅ NEW | ✅ |
+| Auto Compression | ❌ | ❌ | ❌ | ✅ NEW | ✅ |
+| Cost Tracking | ❌ | ❌ | ❌ | ✅ NEW | ✅ |
+| **Smart Cropping** | ❌ | ❌ | ❌ | ❌ | ✅ **NEW** |
+| **Enhanced UX** | ❌ | ❌ | ❌ | ❌ | ✅ **NEW** |

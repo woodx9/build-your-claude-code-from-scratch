@@ -45,7 +45,7 @@ def test_crop_invalid_amount():
     
     manager = setup_history_manager()
     
-    # Add 4 messages - with crop_amount=2, check becomes 4 <= 2+2 = true, so invalid
+    # Add 3 messages - with crop_amount=2, check becomes 3 < 2+2 = true, so invalid
     manager.add_message(create_mock_message(Role.SYSTEM, "System message"))
     manager.add_message(create_mock_message(Role.USER, "User message"))
     manager.add_message(create_mock_message(Role.ASSISTANT, "Assistant message"))
