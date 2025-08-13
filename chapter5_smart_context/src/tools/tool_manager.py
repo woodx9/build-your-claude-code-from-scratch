@@ -1,9 +1,11 @@
 from tools.cmd_runner import CmdRunner
+from tools.smart_context_cropper import SmartContextCropper
 
 class ToolManager:
     def __init__(self):
         self.tools = {}
         self._register_tool(CmdRunner.get_tool_name(), CmdRunner())
+        self._register_tool(SmartContextCropper.get_tool_name(), SmartContextCropper())
 
     def _register_tool(self, name, tool_instance):
         self.tools[name] = tool_instance
@@ -14,8 +16,12 @@ class ToolManager:
             descriptions.append(tool_instance.json_schema())
         return descriptions
     
+    # TODO： 数组越界直接再次抛出异常
     def run_tool(self, tool_name, **kwargs):
         tool = self.tools.get(tool_name)
-        if tool:
-            return tool.act(**kwargs)
+        try:
+            if tool:
+                return tool.act(**kwargs)
+        except Exception as e:
+            return f"Error occurred while running tool '{tool_name}': {str(e)}"
         return "Tool not found"

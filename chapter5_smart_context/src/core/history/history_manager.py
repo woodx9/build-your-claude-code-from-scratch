@@ -24,6 +24,10 @@ class Role(str, Enum):
     TOOL = "tool"
     ASSISTANT = "assistant"
 
+class Crop_Direction(str, Enum):
+    TOP = "top"
+    BOTTOM = "bottom"
+
 class BaseHistoryManager(ABC):
     def __init__(self):
         self.messages_history = [[]]
@@ -55,14 +59,66 @@ class BaseHistoryManager(ABC):
 
 
 class HistoryManager(BaseHistoryManager):
+    _instance = None
+    _initialized = False
+    
+    def __new__(cls, model_max_tokens: int = 200, compress_threshold: float = 0.8):
+        if cls._instance is None:
+            cls._instance = super().__new__(cls)
+        return cls._instance
+    
     def __init__(self, model_max_tokens: int = 200, compress_threshold: float = 0.8):
-        super().__init__()
-        self._ui_manager = UIManager()
-        self._model_max_tokens =  int(os.getenv("MODEL_MAX_TOKENS", model_max_tokens)) * 1024
-        self._compress_threshold = float(os.getenv("COMPRESS_THRESHOLD", compress_threshold))
+        if not self._initialized:
+            super().__init__()
+            self._ui_manager = UIManager()
+            self._model_max_tokens =  int(os.getenv("MODEL_MAX_TOKENS", model_max_tokens)) * 1024
+            self._compress_threshold = float(os.getenv("COMPRESS_THRESHOLD", compress_threshold))
+            self._initialized = True
 
     def add_message(self, message) -> None:
         self.messages_history[-1].append(message)
+
+    # mustn't crop the latest user input message
+    # mustn't crop_amount < current_messages - 1 
+    def crop_message(self, crop_direction: Crop_Direction, crop_amount: int) -> str:  
+        current_messages = self.messages_history[-1]
+        
+        if len(current_messages) <= 1:
+            return "Cannot crop: insufficient messages"
+        
+        if len(current_messages) < crop_amount + 2:
+            return "Cannot crop: invalid crop amount"
+
+        # find the latest user message index
+        latest_user_index = -1
+        for i in range(len(current_messages) - 1, -1, -1):
+            if current_messages[i]['role'] == Role.USER:
+                latest_user_index = i
+                break
+        
+        if latest_user_index == -1:
+            return "Cannot crop: no user messages found"
+
+        # ensure not to crop the latest user input message
+        if crop_direction == Crop_Direction.TOP:
+            max_crop_amount = latest_user_index
+        else:  # BOTTOM
+            max_crop_amount = len(current_messages) - latest_user_index - 1
+            
+        
+        if crop_amount >  max_crop_amount:
+            return "Cannot crop: can't crop the latest user message"
+
+        if crop_direction == Crop_Direction.TOP:
+            # crop from the top, keeping system messages and content after the latest user message
+            system_messages = [msg for msg in current_messages if msg['role'] == Role.SYSTEM]
+            cropped_messages = system_messages + current_messages[crop_amount:]
+        else:  # BOTTOM
+            # crop from the bottom, ensuring not to crop the latest user message
+            cropped_messages = current_messages[:-crop_amount]
+        
+        self.messages_history[-1] = cropped_messages
+        return "Crop message successful"
 
     @property                                                                                                                       
     def current_context_window(self):                                                                                               

@@ -33,7 +33,7 @@ class CmdRunner(BaseAgent):
             return "Command timed out"
         except Exception as e:
             self.status = "error"
-            return f"Exception: {str(e)}"
+            return f"cmd_runner Exception: {str(e)}"
 
     def json_schema(self):
         return {
