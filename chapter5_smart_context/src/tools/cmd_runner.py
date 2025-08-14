@@ -84,7 +84,6 @@ Before executing the command, please follow these steps:
 
 3. Read File Command:
    - When you need to read a file for the first time, always use `cat -n <file>` to display the contents with line numbers (default max 2000 lines)
-   - For large files, consider using `head -n 100 <file>` or `tail -n 100 <file>` to preview content first
 
 4. Edit File Command:
    - Before updating any file, you must read the file content in the current conversation first
@@ -94,6 +93,8 @@ Before executing the command, please follow these steps:
      Example: `sed "insert_line_number a insert_content" <file>`
    - When searching within files, always use grep:
      Example: `grep "search_pattern" <file>`
+   - Before you edit a file, Always use use sed to peek that code with concrete line numbers. make sure it's the right code you need to update
+     Example: `sed -n "start_line,end_line p" <file>`
 
 Note: The above commands are for Linux/macOS systems. For Windows, use appropriate command-line equivalents (e.g., `dir`, `type`, PowerShell commands).
 
