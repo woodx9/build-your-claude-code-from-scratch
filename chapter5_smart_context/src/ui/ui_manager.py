@@ -37,7 +37,7 @@ class UIManager:
             self._initialized = True
     
     # Input delegation methods
-    async def get_user_input(self, prompt: str = "请输入: ") -> str:
+    async def get_user_input(self, prompt: str = "Enter: ") -> str:
         """Get user input with specified prompt."""
         return await self.input_handler.get_user_input(prompt)
     
@@ -115,9 +115,9 @@ class UIManager:
             result: Result of the execution
         """
         if success:
-            self.print_success(f"成功调用工具: {tool_name}, 参数: {tool_args}, 返回: {result}")
+            self.print_success(f"Successfully called tool: {tool_name}, args: {tool_args}, result: {result}")
         else:
-            self.print_error(f"调用工具失败: {tool_name}, 错误: {result}")
+            self.print_error(f"Tool call failed: {tool_name}, error: {result}")
     
     def show_preparing_tool(self, tool_name: str, tool_args: dict) -> None:
         """
@@ -127,4 +127,4 @@ class UIManager:
             tool_name: Name of the tool
             tool_args: Arguments for the tool
         """
-        self.print_info(f"准备调用工具: {tool_name}, 参数: {tool_args}")
+        self.print_info(f"Preparing to call tool: {tool_name}, args: {tool_args}")

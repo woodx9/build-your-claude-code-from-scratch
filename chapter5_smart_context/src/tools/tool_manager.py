@@ -17,7 +17,7 @@ class ToolManager:
             descriptions.append(tool_instance.json_schema())
         return descriptions
     
-    # TODO： 数组越界直接再次抛出异常
+    # TODO： Array out of bounds should directly throw exception again
     def run_tool(self, tool_name, **kwargs):
         tool = self.tools.get(tool_name)
         try:

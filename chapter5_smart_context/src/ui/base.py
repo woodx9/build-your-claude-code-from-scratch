@@ -10,7 +10,7 @@ class BaseInputHandler(ABC):
     """Abstract base class for input handlers."""
     
     @abstractmethod
-    async def get_user_input(self, prompt: str = "请输入: ") -> str:
+    async def get_user_input(self, prompt: str = "Enter: ") -> str:
         """Get user input with specified prompt."""
         pass
     

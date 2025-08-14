@@ -75,7 +75,7 @@ class Conversation:
         try:
             await self._recursive_message_handling()
         except Exception as e:
-            self._ui_manager.print_error(f"发生系统错误：{e}")
+            self._ui_manager.print_error(f"System error occurred: {e}")
             traceback.print_exc()
 
     async def _recursive_message_handling(self):
@@ -141,13 +141,13 @@ class Conversation:
                 response_message = self._create_simple_message(full_content)
             
         except Exception as e:
-            self._ui_manager.print_error(f"流式响应处理出错: {e}")
-            self._ui_manager.print_info(f"错误类型: {type(e).__name__}")
+            self._ui_manager.print_error(f"Streaming response processing error: {e}")
+            self._ui_manager.print_info(f"Error type: {type(e).__name__}")
             traceback.print_exc()
             
             # Fallback to non-streaming mode
             try:
-                self._ui_manager.print_info("尝试使用非流式模式...")
+                self._ui_manager.print_info("Trying non-streaming mode...")
                 response_message, token_usage = self._api_client.get_completion(request)
                 self._ui_manager.print_assistant_message(response_message.content)
                 
@@ -156,7 +156,7 @@ class Conversation:
                     self._history_manager.update_token_usage(token_usage)
                     
             except Exception as fallback_error:
-                self._ui_manager.print_error(f"非流式模式也失败: {fallback_error}")
+                self._ui_manager.print_error(f"Non-streaming mode also failed: {fallback_error}")
                 # Create error response
                 response_message = self._create_error_message(str(e))
                 self._ui_manager.print_assistant_message(response_message.content)
@@ -212,7 +212,7 @@ class Conversation:
             try:
                 args = json.loads(tool_call.function.arguments)
             except json.JSONDecodeError as e:
-                self._ui_manager.print_error(f"工具参数解析失败: {e}")
+                self._ui_manager.print_error(f"Tool parameter parsing failed: {e}")
                 tool_response = {
                     "role": "tool",
                     "tool_call_id": tool_call.id,
@@ -229,7 +229,7 @@ class Conversation:
             should_execute = True
 
             if need_user_approve:
-                approval_content = f"工具: {tool_call.function.name}, 参数: {args}"
+                approval_content = f"Tool: {tool_call.function.name}, args: {args}"
                 should_execute, content = await self._ui_manager.wait_for_user_approval(approval_content)
 
             if should_execute:
@@ -287,7 +287,7 @@ class Conversation:
         """Create an error message object."""
         class ErrorMessage:
             def __init__(self, error_msg):
-                self.content = f"抱歉，我遇到了技术问题: {error_msg}"
+                self.content = f"Sorry, I encountered a technical problem: {error_msg}"
                 self.role = "assistant"
                 self.tool_calls = None
         

@@ -13,7 +13,7 @@ class InputHandler:
         """Initialize the input handler."""
         pass
     
-    async def get_user_input(self, prompt: str = "请输入: ") -> str:
+    async def get_user_input(self, prompt: str = "Enter: ") -> str:
         """
         Get user input asynchronously.
         
@@ -43,8 +43,8 @@ class InputHandler:
         """
         if emoji:
             print(emoji)
-        print("请确认是否执行工具调用: ", content)
-        print("回答 yes 或 no，如果拒绝请说明原因")
+        print("Please confirm if you want to execute the tool call: ", content)
+        print("Answer yes or no, if refusing please provide a reason")
         
         while True:
             user_input = await self.get_user_input()
@@ -54,7 +54,7 @@ class InputHandler:
             elif "no" in user_input.lower():
                 return False, user_input
             else:
-                print("无效输入，请回答 yes 或 no")
+                print("Invalid input, please answer yes or no")
     
     async def get_choice_input(self, prompt: str, choices: list, case_sensitive: bool = False) -> Optional[str]:
         """
@@ -69,7 +69,7 @@ class InputHandler:
             The chosen option or None if invalid
         """
         print(prompt)
-        print(f"可选项: {', '.join(choices)}")
+        print(f"Options: {', '.join(choices)}")
         
         user_input = await self.get_user_input()
         

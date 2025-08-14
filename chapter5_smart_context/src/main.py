@@ -21,16 +21,16 @@ def welcome():
     star1 = fg_256(226) + "✦" + RESET
     star2 = fg_256(220) + "✧" + RESET
 
-    # 顶部星空边框
+    # Top starry border
     border = border_color + "═" * 50 + RESET
     print("\n " + border)
     print("  " + (star1 + " ") * 5 + (star2 + " ") * 5)
 
-    # 渐变欢迎语
+    # Gradient welcome text
     text = gradient_text("★ Welcome to Quick Star ★", 196, 226)
     print("\n" + text.center(55))
 
-    # 底部星空
+    # Bottom starry
     print("\n  " + (star2 + " ") * 5 + (star1 + " ") * 5)
     print(" " + border + "\n")
 
@@ -40,7 +40,7 @@ async def main():
 
 
 def cli():
-    """同步入口点，供 pyproject.toml 使用"""
+    """Synchronous entry point for pyproject.toml"""
     asyncio.run(main())
 
 if __name__ == "__main__":

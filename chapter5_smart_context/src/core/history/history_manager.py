@@ -7,7 +7,7 @@ from dotenv import load_dotenv
 from ui.ui_manager import UIManager
 from enum import Enum
 
-# 加载环境变量
+# Load environment variables
 load_dotenv()
 
 @dataclass
@@ -152,8 +152,8 @@ class HistoryManager(BaseHistoryManager):
     # else compress the current roll assistant output
     # tell the model we have compressed the messages
     def _compress_current_message(self) -> None:
-        """压缩当前消息历史以节省上下文窗口空间"""
-        self._ui_manager.print_assistant_message("历史上下文过长，正在压缩中...")
+        """Compress current message history to save context window space"""
+        self._ui_manager.print_assistant_message("History context too long, compressing...")
 
         current_messages = self.messages_history[-1]
         user_indices = self._get_user_message_indices(current_messages)
@@ -165,7 +165,7 @@ class HistoryManager(BaseHistoryManager):
             self._compress_single_session(current_messages, user_indices[0], 3)
     
     def _get_user_message_indices(self, messages: list) -> list[int]:
-        """获取所有用户消息的索引位置"""
+        """Get index positions of all user messages"""
         return [i for i, msg in enumerate(messages) if msg.role == Role.USER]
     
     def _compress_multiple_sessions(self, messages: list, user_indices: list[int]) -> None:

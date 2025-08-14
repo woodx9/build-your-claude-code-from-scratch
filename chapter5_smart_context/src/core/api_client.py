@@ -7,7 +7,7 @@ from openai.types.chat import ChatCompletionMessage, ChatCompletionMessageFuncti
 from openai.types.chat.chat_completion_message_function_tool_call import Function
 
 
-# 加载环境变量
+# Load environment variables
 load_dotenv()
 
 
@@ -27,21 +27,21 @@ class APIClient:
     
     def __init__(self):
         """
-        单例模式初始化API客户端
+        Singleton pattern initialization for API client
         """
         if not self._initialized:
-            # 从环境变量读取配置
+            # Read configuration from environment variables
             self.api_key = os.getenv("OPENAI_API_KEY")
             self.base_url = os.getenv("OPENAI_BASE_URL")
             self.model = os.getenv("OPENAI_MODEL")
             
-            # 检查必要的环境变量是否存在
+            # Check if required environment variables exist
             if not self.api_key:
-                raise ValueError("OPENAI_API_KEY 环境变量未设置")
+                raise ValueError("OPENAI_API_KEY environment variable not set")
             if not self.base_url:
-                raise ValueError("OPENAI_BASE_URL 环境变量未设置")
+                raise ValueError("OPENAI_BASE_URL environment variable not set")
             if not self.model:
-                raise ValueError("OPENAI_MODEL 环境变量未设置")
+                raise ValueError("OPENAI_MODEL environment variable not set")
             
             self.client = OpenAI(
                 api_key=self.api_key,
@@ -51,13 +51,13 @@ class APIClient:
     
     def get_completion(self, request_params: Dict[str, Any]) -> Tuple[Any, Any]:
         """
-        发送聊天完成请求并返回消息和token使用情况（非流式）
+        Send chat completion request and return message and token usage (non-streaming)
         
         Args:
-            request_params: 请求参数字典，包含model, messages等
+            request_params: Request parameters dictionary, including model, messages, etc.
             
         Returns:
-            Tuple[message, token_usage]: 返回AI助手的回复消息对象和token使用情况
+            Tuple[message, token_usage]: Return AI assistant reply message object and token usage
         """
         request_params["model"] = self.model
         try:
@@ -71,17 +71,17 @@ class APIClient:
                 
             return message, token_usage
         except Exception as e:
-            raise Exception(f"API请求失败: {str(e)}")
+            raise Exception(f"API request failed: {str(e)}")
     
     def get_completion_stream(self, request_params: Dict[str, Any]) -> Generator[str, None, None]:
         """
-        发送流式聊天完成请求并返回生成器，包含token使用情况
+        Send streaming chat completion request and return generator, including token usage
         
         Args:
-            request_params: 请求参数字典，包含model, messages等
+            request_params: Request parameters dictionary, including model, messages, etc.
             
         Yields:
-            逐步返回AI助手的回复内容片段，最后返回完整消息对象和token使用情况
+            Gradually return AI assistant reply content chunks, finally return complete message object and token usage
         """
         request_params["model"] = self.model
         request_params["stream"] = True
@@ -109,11 +109,11 @@ class APIClient:
                     full_content += content_chunk
                     yield content_chunk
                 
-                # 处理工具调用
+                # Handle tool calls
                 if hasattr(chunk.choices[0].delta, 'tool_calls') and chunk.choices[0].delta.tool_calls:
                     for tool_call_delta in chunk.choices[0].delta.tool_calls:
                         if tool_call_delta.index is not None:
-                            # 确保有足够的tool_calls槽位
+                            # Ensure enough tool_calls slots
                             while len(tool_calls) <= tool_call_delta.index:
                                 tool_calls.append({
                                     'id': None,
@@ -133,7 +133,7 @@ class APIClient:
                                     current_tool_call['function']['arguments'] += tool_call_delta.function.arguments
             
             
-            # 转换tool_calls为OpenAI标准格式
+            # Convert tool_calls to OpenAI standard format
             formatted_tool_calls = None
             if tool_calls and any(tc['id'] for tc in tool_calls):
                 formatted_tool_calls = []
@@ -150,7 +150,7 @@ class APIClient:
                             )
                         )
             
-            # 返回标准的ChatCompletionMessage对象
+            # Return standard ChatCompletionMessage object
             message = ChatCompletionMessage(
                 content=full_content,
                 role="assistant",
@@ -169,4 +169,4 @@ class APIClient:
             yield message
             
         except Exception as e:
-            raise Exception(f"流式API请求失败: {str(e)}")
+            raise Exception(f"Streaming API request failed: {str(e)}")
