@@ -1,5 +1,6 @@
 class MatrixRain {
     constructor() {
+        this.frameCount = 0;
         this.createMatrixRain();
     }
     
@@ -9,17 +10,17 @@ class MatrixRain {
         document.body.appendChild(matrixContainer);
         
         const chars = 'アイウエオカキクケコサシスセソタチツテトナニヌネノハヒフヘホマミムメモヤユヨラリルレロワヲン0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz';
-        const numColumns = Math.floor(window.innerWidth / 20);
+        const numColumns = Math.floor(window.innerWidth / 25);
         
         for (let i = 0; i < numColumns; i++) {
             const column = document.createElement('div');
             column.className = 'matrix-column';
-            column.style.left = `${i * 20}px`;
+            column.style.left = `${i * 25}px`;
             column.style.animationDuration = `${Math.random() * 3 + 2}s`;
             column.style.animationDelay = `${Math.random() * 2}s`;
             
             let columnText = '';
-            const columnHeight = Math.floor(Math.random() * 20) + 10;
+            const columnHeight = Math.floor(Math.random() * 15) + 8;
             
             for (let j = 0; j < columnHeight; j++) {
                 const char = chars[Math.floor(Math.random() * chars.length)];
@@ -34,7 +35,7 @@ class MatrixRain {
         setTimeout(() => {
             matrixContainer.remove();
             this.createMatrixRain();
-        }, 8000);
+        }, 12000);
     }
 }
 
@@ -56,6 +57,9 @@ class SnakeGame {
         this.cols = this.canvas.width / this.gridSize;
         this.rows = this.canvas.height / this.gridSize;
         
+        this.enableEffects = true;
+        this.frameCount = 0;
+        
         this.reset();
         this.setupEventListeners();
         this.loadHighScore();
@@ -67,8 +71,10 @@ class SnakeGame {
         new MatrixRain();
         
         setInterval(() => {
-            this.glitchScore();
-        }, 5000);
+            if (this.frameCount % 300 === 0) {
+                this.glitchScore();
+            }
+        }, 100);
     }
     
     glitchScore() {
@@ -76,9 +82,9 @@ class SnakeGame {
             const originalScore = this.scoreElement.textContent;
             const glitchChars = '!@#$%^&*()_+-=[]{}|;:,.<>?';
             
-            for (let i = 0; i < 3; i++) {
+            for (let i = 0; i < 2; i++) {
                 setTimeout(() => {
-                    if (i < 2) {
+                    if (i < 1) {
                         let glitched = '';
                         for (let j = 0; j < 4; j++) {
                             glitched += glitchChars[Math.floor(Math.random() * glitchChars.length)];
@@ -87,7 +93,7 @@ class SnakeGame {
                     } else {
                         this.scoreElement.textContent = originalScore;
                     }
-                }, i * 100);
+                }, i * 80);
             }
         }
     }
@@ -104,6 +110,7 @@ class SnakeGame {
         this.baseSpeed = 150;
         this.speed = this.baseSpeed;
         this.lastMoveTime = 0;
+        this.frameCount = 0;
         
         this.updateDisplay();
         this.hideOverlays();
@@ -299,19 +306,21 @@ class SnakeGame {
     }
     
     render() {
+        this.frameCount++;
+        
         this.ctx.fillStyle = '#000000';
         this.ctx.fillRect(0, 0, this.canvas.width, this.canvas.height);
         
-        this.renderMatrixGrid();
+        if (this.frameCount % 4 === 0) {
+            this.renderMatrixGrid();
+        }
         this.renderFood();
         this.renderSnake();
     }
     
     renderMatrixGrid() {
-        this.ctx.strokeStyle = '#003300';
-        this.ctx.lineWidth = 0.5;
-        this.ctx.shadowColor = '#00ff41';
-        this.ctx.shadowBlur = 1;
+        this.ctx.strokeStyle = '#002200';
+        this.ctx.lineWidth = 0.3;
         
         for (let x = 0; x <= this.canvas.width; x += this.gridSize) {
             this.ctx.beginPath();
@@ -326,8 +335,6 @@ class SnakeGame {
             this.ctx.lineTo(this.canvas.width, y);
             this.ctx.stroke();
         }
-        
-        this.ctx.shadowBlur = 0;
     }
     
     renderFood() {
@@ -335,16 +342,12 @@ class SnakeGame {
         const y = this.food.y * this.gridSize;
         
         this.ctx.fillStyle = '#ff0033';
-        this.ctx.shadowColor = '#ff0033';
-        this.ctx.shadowBlur = 15;
         this.ctx.fillRect(x + 2, y + 2, this.gridSize - 4, this.gridSize - 4);
         
         this.ctx.fillStyle = '#ff3355';
-        this.ctx.shadowBlur = 8;
         this.ctx.fillRect(x + 4, y + 4, this.gridSize - 8, this.gridSize - 8);
         
         this.ctx.fillStyle = '#ff6677';
-        this.ctx.shadowBlur = 0;
         this.ctx.fillRect(x + 6, y + 6, this.gridSize - 12, this.gridSize - 12);
     }
     
@@ -355,32 +358,24 @@ class SnakeGame {
             
             if (index === 0) {
                 this.ctx.fillStyle = '#00ff41';
-                this.ctx.shadowColor = '#00ff41';
-                this.ctx.shadowBlur = 20;
                 this.ctx.fillRect(x + 1, y + 1, this.gridSize - 2, this.gridSize - 2);
                 
                 this.ctx.fillStyle = '#44ff77';
-                this.ctx.shadowBlur = 10;
                 this.ctx.fillRect(x + 3, y + 3, this.gridSize - 6, this.gridSize - 6);
                 
                 this.ctx.fillStyle = '#88ffaa';
-                this.ctx.shadowBlur = 0;
                 this.ctx.fillRect(x + 5, y + 5, this.gridSize - 10, this.gridSize - 10);
             } else {
                 const intensity = Math.max(0.2, 1 - (index * 0.08));
                 this.ctx.fillStyle = `rgba(0, 255, 65, ${intensity})`;
-                this.ctx.shadowColor = '#00ff41';
-                this.ctx.shadowBlur = 8 * intensity;
                 this.ctx.fillRect(x + 1, y + 1, this.gridSize - 2, this.gridSize - 2);
                 
                 if (intensity > 0.5) {
                     this.ctx.fillStyle = `rgba(68, 255, 119, ${intensity * 0.7})`;
-                    this.ctx.shadowBlur = 4 * intensity;
                     this.ctx.fillRect(x + 3, y + 3, this.gridSize - 6, this.gridSize - 6);
                 }
             }
         });
-        this.ctx.shadowBlur = 0;
     }
     
     gameLoop(currentTime = 0) {
