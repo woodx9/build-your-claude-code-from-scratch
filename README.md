@@ -1,5 +1,26 @@
 # Agent Learning Project
 
+## 🚀 Experience Quick Star CLI in Action!
+
+![Quick Star CLI](resources/images/quick_star_cli.png)
+
+**✨ Try Quick Star CLI now!** An intelligent AI agent with elegant command-line interface, real-time streaming responses, and powerful code generation capabilities.
+
+## 🎮 See What's Possible: Snake Game Created by AI!
+
+![Snake Game](resources/images/snake_game.jpg)
+
+**🎯 Play the snake game!** This fully functional game was created entirely through natural language conversations with Quick Star CLI, showcasing:
+- 🧠 **Intelligent Code Generation** - Complete game logic from simple descriptions
+- 🔧 **Real-time Debugging** - Iterate and improve code instantly  
+- 📁 **Smart File Management** - Handle complex project structures
+- 🎨 **Interactive Applications** - Create engaging user experiences
+
+**Ready to build something amazing?** Follow the installation guide below and start creating with Quick Star CLI!
+
+---
+
+
 **[中文版本 / Chinese Version](README_zh.md)**
 
 This project demonstrates the progressive development of AI agents, from basic tool calling to advanced streaming agents with history control. Each chapter builds upon the previous one, showing incremental improvements and new features.
