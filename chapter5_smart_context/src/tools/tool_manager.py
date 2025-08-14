@@ -4,8 +4,9 @@ from tools.smart_context_cropper import SmartContextCropper
 class ToolManager:
     def __init__(self):
         self.tools = {}
-        self._register_tool(CmdRunner.get_tool_name(), CmdRunner())
+        # Important tools should be placed lower, as this affects their position in the prompt.
         self._register_tool(SmartContextCropper.get_tool_name(), SmartContextCropper())
+        self._register_tool(CmdRunner.get_tool_name(), CmdRunner())   
 
     def _register_tool(self, name, tool_instance):
         self.tools[name] = tool_instance
