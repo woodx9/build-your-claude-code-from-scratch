@@ -85,8 +85,8 @@
 ### 1. 克隆仓库
 
 ```bash
-git clone https://github.com/woodx9/agentLearning.git
-cd agentLearning
+https://github.com/woodx9/build-your-claude-code-from-scratch.git
+cd build-your-claude-code-from-scratch
 ```
 
 ### 2. 创建并激活 Conda 环境
@@ -112,7 +112,7 @@ pip install -r requirements.txt
 #### 二：以开发模式安装（推荐用于开发）
 ```bash
 # 或者其他chapter
-cd chapter4_history_control
+cd chapter5_smart_context
 
 pip install -e .
 ```

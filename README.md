@@ -89,8 +89,8 @@ This project demonstrates the progressive development of AI agents, from basic t
 ### 1. Clone the Repository
 
 ```bash
-git clone https://github.com/woodx9/agentLearning.git
-cd agentLearning
+git clone https://github.com/woodx9/build-your-claude-code-from-scratch.git
+cd build-your-claude-code-from-scratch
 ```
 
 ### 2. Create and Activate Conda Environment
@@ -116,7 +116,7 @@ pip install -r requirements.txt
 #### Option 2: Install in Development Mode (Recommended for Development)
 ```bash
 # 或者其他chapter
-cd chapter4_history_control
+cd chapter5_smart_context
 
 pip install -e .
 ```
