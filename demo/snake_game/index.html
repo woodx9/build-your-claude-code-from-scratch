@@ -1,0 +1,81 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>MATRIX_SNAKE.EXE - Hacker Terminal</title>
+    <link rel="stylesheet" href="style.css">
+    <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@300;400;700&display=swap" rel="stylesheet">
+</head>
+<body>
+    <div class="terminal">
+        <div class="terminal-header">
+            <div class="terminal-buttons">
+                <span class="btn close"></span>
+                <span class="btn minimize"></span>
+                <span class="btn maximize"></span>
+            </div>
+            <div class="terminal-title">MATRIX_SNAKE.EXE v3.1.337</div>
+        </div>
+        
+        <div class="terminal-body">
+            <div class="header">
+                <div class="ascii-art">
+    ███╗   ███╗ █████╗ ████████╗██████╗ ██╗██╗  ██╗
+    ████╗ ████║██╔══██╗╚══██╔══╝██╔══██╗██║╚██╗██╔╝
+    ██╔████╔██║███████║   ██║   ██████╔╝██║ ╚███╔╝ 
+    ██║╚██╔╝██║██╔══██║   ██║   ██╔══██╗██║ ██╔██╗ 
+    ██║ ╚═╝ ██║██║  ██║   ██║   ██║  ██║██║██╔╝ ██╗
+    ╚═╝     ╚═╝╚═╝  ╚═╝   ╚═╝   ╚═╝  ╚═╝╚═╝╚═╝  ╚═╝
+                </div>
+                <div class="info-panel">
+                    <div class="score-display">
+                        <span class="label">SCORE:</span>
+                        <span id="score" class="value">0000</span>
+                    </div>
+                    <div class="high-score-display">
+                        <span class="label">HIGH:</span>
+                        <span id="highScore" class="value">0000</span>
+                    </div>
+                    <div class="level-display">
+                        <span class="label">LEVEL:</span>
+                        <span id="level" class="value">01</span>
+                    </div>
+                </div>
+            </div>
+
+            <div class="game-container">
+                <canvas id="gameCanvas"></canvas>
+                <div id="gameOver" class="game-over hidden">
+                    <div class="game-over-content">
+                        <div class="game-over-text">GAME OVER</div>
+                        <div class="final-score">Final Score: <span id="finalScore">0</span></div>
+                        <div class="restart-hint">Press SPACE to restart</div>
+                    </div>
+                </div>
+                <div id="paused" class="paused hidden">
+                    <div class="paused-content">
+                        <div class="paused-text">PAUSED</div>
+                        <div class="pause-hint">Press SPACE to resume</div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="controls">
+                <div class="control-section">
+                    <div class="control-title">CONTROLS</div>
+                    <div class="control-item">↑↓←→ or WASD - Move</div>
+                    <div class="control-item">SPACE - Pause/Resume</div>
+                    <div class="control-item">R - Restart</div>
+                </div>
+                <div class="status-section">
+                    <div class="status-title">STATUS</div>
+                    <div id="gameStatus" class="status-text">Ready to play</div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="script.js"></script>
+</body>
+</html>
