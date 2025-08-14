@@ -1,5 +1,7 @@
 # Agent Learning Project
 
+**[中文版本 / Chinese Version](README_zh.md)**
+
 ## 🚀 Experience Quick Star CLI in Action!
 
 ![Quick Star CLI](resources/images/quick_star_cli.png)
@@ -20,8 +22,6 @@
 
 ---
 
-
-**[中文版本 / Chinese Version](README_zh.md)**
 
 This project demonstrates the progressive development of AI agents, from basic tool calling to advanced streaming agents with history control. Each chapter builds upon the previous one, showing incremental improvements and new features.
 
