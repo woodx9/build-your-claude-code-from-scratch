@@ -93,8 +93,8 @@ Before executing the command, please follow these steps:
      Example: `sed -i "insert_line_number a insert_content" <file>`
    - When searching within files, always use grep:
      Example: `grep "search_pattern" <file>`
-   - Before you edit a file, Always use use sed to peek that code with concrete line numbers. make sure it's the right code you need to update
-     Example: `sed -n "start_line,end_line p" <file>`
+   - Before editing a file, use sed to preview the specific lines with their line numbers if you are unsure of the exact range. Make sure it’s the code you actually want to update.
+     Example: sed -n "start_line,end_line p" <file>
 
 Note: The above commands are for Linux/macOS systems. For Windows, use appropriate command-line equivalents (e.g., `dir`, `type`, PowerShell commands).
 
