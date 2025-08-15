@@ -1,10 +1,12 @@
 import json
 from tools.base_agent import BaseAgent
+from ui.ui_manager import UIManager
 
 class TodoWrite(BaseAgent):
     def __init__(self):
         super().__init__()
         self.todos = []
+        self._ui_manager = UIManager()
 
     @staticmethod
     def get_tool_name():
@@ -14,7 +16,27 @@ class TodoWrite(BaseAgent):
         if not todos:
             return "No todos provided"
         
+        # Validate todos type
+        if not isinstance(todos, list):
+            return f"Error: todos type is wrong. Expected list, got {type(todos).__name__}. todos = {todos}"
+        
+        for i, todo in enumerate(todos):
+            if not isinstance(todo, dict):
+                return f"Error: todo item {i} type is wrong. Expected dict, got {type(todo).__name__}. todos = {todos}"
+            
+            required_fields = ['content', 'status', 'id']
+            for field in required_fields:
+                if field not in todo:
+                    return f"Error: todo item {i} missing required field '{field}'. todos = {todos}"
+            
+            if todo['status'] not in ['pending', 'in_progress', 'completed']:
+                return f"Error: todo item {i} has invalid status '{todo['status']}'. Must be one of: pending, in_progress, completed. todos = {todos}"
+        
         self.todos = todos
+        
+        # Display the updated todos using UI manager
+        self._ui_manager.display_todos(todos)
+        
         return f"Successfully updated todo list with {len(todos)} todos"
 
     def json_schema(self):

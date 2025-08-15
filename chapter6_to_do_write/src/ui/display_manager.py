@@ -126,3 +126,48 @@ class DisplayManager:
             print(f"{emoji} {info_message}")
         else:
             print(info_message)
+
+    def display_todos(self, todos: list, emoji: str = "📋") -> None:
+        """
+        Display todo list with formatting.
+        
+        Args:
+            todos: List of todo items
+            emoji: Emoji to display before todo list
+        """
+        if not todos:
+            self.print_info("No todos to display", emoji)
+            return
+        
+        output = []
+        output.append("📋 Todo List:")
+        output.append("=" * 50)
+        
+        for i, todo in enumerate(todos, 1):
+            status_icon = self._get_status_icon(todo['status'])
+            content = todo['content']
+            todo_id = todo['id']
+            
+            output.append(f"{i:2d}. {status_icon} [{todo_id}] {content}")
+        
+        output.append("=" * 50)
+        output.append(f"Total: {len(todos)} todos")
+        
+        self.print_simple_message("\n".join(output))
+    
+    def _get_status_icon(self, status: str) -> str:
+        """
+        Get icon for todo status.
+        
+        Args:
+            status: Todo status
+            
+        Returns:
+            Icon string for the status
+        """
+        icons = {
+            'pending': '⏳',
+            'in_progress': '🔄',
+            'completed': '✅'
+        }
+        return icons.get(status, '❓')

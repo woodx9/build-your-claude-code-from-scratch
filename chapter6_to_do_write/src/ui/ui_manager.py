@@ -128,3 +128,8 @@ class UIManager:
             tool_args: Arguments for the tool
         """
         self.print_info(f"Preparing to call tool: {tool_name}, args: {tool_args}")
+    
+    # Todo display delegation method
+    def display_todos(self, todos: list, emoji: str = "📋") -> None:
+        """Display todo list with formatting."""
+        self.display_manager.display_todos(todos, emoji)
