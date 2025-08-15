@@ -6,6 +6,7 @@ import json
 import traceback
 from core.api_client import APIClient
 from core.prompt.prompt_manager import PromptManager
+from core.prompt.reminder import get_reminder
 from tools.tool_manager import ToolManager
 from ui.ui_manager import UIManager
 from .history.history_manager import HistoryManager
@@ -208,7 +209,8 @@ class Conversation:
 
     async def _handle_tool_calls(self, tool_calls):
         """Handle tool calls with user approval when needed."""
-        for tool_call in tool_calls:
+        for i, tool_call in enumerate(tool_calls):
+            is_last_tool = (i == len(tool_calls) - 1)
             try:
                 args = json.loads(tool_call.function.arguments)
             except json.JSONDecodeError as e:
@@ -233,11 +235,11 @@ class Conversation:
                 should_execute, content = await self._ui_manager.wait_for_user_approval(approval_content)
 
             if should_execute:
-                await self._execute_tool(tool_call, args)
+                await self._execute_tool(tool_call, args, is_last_tool)
             else:
-                self._add_tool_response(tool_call, f"user denied to execute tool, user input: {content}")
+                self._add_tool_response(tool_call, f"user denied to execute tool, user input: {content}", is_last_tool)
 
-    async def _execute_tool(self, tool_call, args):
+    async def _execute_tool(self, tool_call, args, is_last_tool=False):
         """Execute a tool call and handle the response."""
         tool_args = {k: v for k, v in args.items() if k != 'need_user_approve'}
         self._ui_manager.show_preparing_tool(tool_call.function.name, tool_args)
@@ -250,7 +252,7 @@ class Conversation:
                 success=True, 
                 result=str(tool_response)
             )
-            self._add_tool_response(tool_call, json.dumps(tool_response))
+            self._add_tool_response(tool_call, json.dumps(tool_response), is_last_tool)
         except Exception as e:
             # Enhanced error handling for tool execution
             self._ui_manager.show_tool_execution(
@@ -259,20 +261,24 @@ class Conversation:
                 success=False, 
                 result=str(e)
             )
-            self._add_tool_response(tool_call, f"tool call failed, fail reason: {str(e)}")
+            self._add_tool_response(tool_call, f"tool call failed, fail reason: {str(e)}", is_last_tool)
 
-    def _add_tool_response(self, tool_call, content):
+    def _add_tool_response(self, tool_call, content, is_last_tool=False):
         """Add tool response to message history through history manager."""
+        tool_content = [{"type": "text", "text": content}]
+        
+        # Add reminder after the last tool call in each iteration
+        if is_last_tool:
+            reminder_content = get_reminder()
+            tool_content.append({"type": "text", "text": reminder_content})
+        
         tool_message = {
             "role": "tool",
             "tool_call_id": tool_call.id,
             "name": tool_call.function.name,
-            "content": [
-                {"type": "text", "text": content}
-            ]
+            "content": tool_content
         }
         self.add_message(tool_message)
-
     def _create_simple_message(self, content):
         """Create a simple message object."""
         class SimpleMessage:
