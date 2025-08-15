@@ -88,9 +88,9 @@ Before executing the command, please follow these steps:
 4. Edit File Command:
    - Before updating any file, you must read the file content in the current conversation first
    - When updating content in an existing file, always use sed for replacement except when the updated content is very large:
-     Example: `sed "start_line,end_line c new_content" <file>`
+     Example: `sed -i "start_line,end_line c new_content" <file>`
    - When inserting content into an existing file, use sed for insertion:
-     Example: `sed "insert_line_number a insert_content" <file>`
+     Example: `sed -i "insert_line_number a insert_content" <file>`
    - When searching within files, always use grep:
      Example: `grep "search_pattern" <file>`
    - Before you edit a file, Always use use sed to peek that code with concrete line numbers. make sure it's the right code you need to update
