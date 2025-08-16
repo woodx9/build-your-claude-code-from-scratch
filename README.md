@@ -35,7 +35,8 @@ This project demonstrates the progressive development of AI agents, from basic t
 ├── chapter2_ReAct_agent/         # Basic ReAct agent implementation
 ├── chapter3_stream_agent/        # Streaming agent with real-time responses
 ├── chapter4_history_control/     # Advanced agent with conversation history management
-└── chapter5_smart_context/       # Smart context management with intelligent cropping [NEW]
+├── chapter5_smart_context/       # Smart context management with intelligent cropping
+└── chapter6_to_do_write/         # Task management with TodoWrite tool [NEW]
 ```
 
 ## Features by Chapter
@@ -67,7 +68,7 @@ This project demonstrates the progressive development of AI agents, from basic t
 
 
 
-### Chapter 5: Smart Context Management [NEW]
+### Chapter 5: Smart Context Management
 - All features from Chapter 4
 - **NEW**: Smart context cropping with TOP/BOTTOM strategies
 - **NEW**: Intelligent user denial reason capture  
@@ -76,6 +77,17 @@ This project demonstrates the progressive development of AI agents, from basic t
 - **NEW**: SmartContextCropper tool for precise message management
 - **NEW**: Advanced debugging support with VSCode configurations
 - **NEW**: Comprehensive safety guarantees protecting user messages
+
+### Chapter 6: TodoWrite Tool - Task Management [NEW]
+- All features from Chapter 5
+- **NEW**: TodoWrite tool for structured task management and progress tracking
+- **NEW**: Intelligent task organization with automatic todo list creation
+- **NEW**: Real-time progress monitoring and status updates
+- **NEW**: Smart decision engine for task complexity analysis
+- **NEW**: Context-aware task management with proactive detection
+- **NEW**: Quality assurance integration with test validation
+- **NEW**: Automatic reminder system for pending task management
+- **NEW**: Visual progress indicators and completion validation
 
 
 ## Prerequisites
