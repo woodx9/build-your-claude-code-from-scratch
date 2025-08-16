@@ -1,0 +1,32 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Super Mario Game</title>
+    <link rel="stylesheet" href="style.css">
+    <script src="sounds.js"></script>
+</head>
+<body>
+    <div id="gameContainer">
+        <div id="gameUI">
+            <div id="score">Score: <span id="scoreValue">0</span></div>
+            <div id="lives">Lives: <span id="livesValue">3</span></div>
+            <div id="coins">Coins: <span id="coinsValue">0</span></div>
+        </div>
+        <canvas id="gameCanvas" width="800" height="600"></canvas>
+        <div id="gameOver" class="hidden">
+            <h2>Game Over!</h2>
+            <p>Final Score: <span id="finalScore">0</span></p>
+            <button id="restartBtn">Play Again</button>
+        </div>
+        <div id="startScreen">
+            <h1>Super Mario Game</h1>
+            <p>Use WASD or Arrow Keys to move</p>
+            <p>Space to jump higher</p>
+            <button id="startBtn">Start Game</button>
+        </div>
+    </div>
+    <script src="game.js"></script>
+</body>
+</html>
