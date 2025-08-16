@@ -4,143 +4,161 @@
 
 A ReAct (Reasoning and Acting) based AI agent system supporting **real-time streaming output**, **intelligent history management**, **cost tracking**, **smart context cropping**, tool calling, and user interaction.
 
-## 🚀 Chapter5 Major Updates
+## 🚀 Chapter6 Major Updates
 
-### 1. Smart Context Cropping Feature **[NEW]**
+### 1. TodoWrite Tool - Structured Task Management **[NEW]**
 
-Chapter5's core new feature is **Smart Context Cropping**, providing advanced users with fine-grained message management control:
-- 🎯 **Precise Cropping**: Supports cropping specified number of messages from TOP or BOTTOM
-- 🔒 **Safety Guarantee**: Strictly protects latest user messages and system messages from accidental cropping
-- 📝 **Cropping Summary**: Supports providing concise summaries for cropped content to maintain context continuity
-- 🛠️ **New Tool**: SmartContextCropper tool, seamlessly integrated with existing tool chain
-- ⚡ **Immediate Effect**: Cropping operations take effect immediately, optimizing long conversation performance
+Chapter6's flagship feature is the **TodoWrite Tool**, providing intelligent task management and progress tracking:
+- 🎯 **Smart Task Organization**: Automatically creates structured todo lists for multi-step tasks
+- 📋 **Real-time Progress Tracking**: Updates task status in real-time as work progresses
+- 🔄 **Intelligent State Management**: Manages pending, in_progress, and completed task states
+- 🧠 **Context-Aware Creation**: Proactively identifies when todo lists would be beneficial
+- ⚡ **Seamless Integration**: Integrates naturally with existing tool chain and workflow
+- 📊 **Visual Progress Display**: Shows comprehensive task status with progress indicators
 
-#### 🎛️ Cropping Strategies
+#### 🎯 When TodoWrite is Used
 ```python
-# Crop from top - remove oldest N messages (preserve system messages)
-crop_direction: "top", crop_amount: 3
+# Complex multi-step tasks - 3+ distinct operations
+User: "Add dark mode toggle, run tests, and build the app"
+→ Creates structured todo list automatically
 
-# Crop from bottom - remove most recent N messages (protect latest user message)  
-crop_direction: "bottom", crop_amount: 2
+# Multiple tasks from user - comma-separated or numbered lists
+User: "Implement user registration, product catalog, shopping cart"
+### 2. Enhanced Productivity & Organization **[NEW]**
+
+#### 📝 Proactive Task Management
+- **Automatic Detection**: Recognizes when tasks require systematic tracking
+- **Progress Transparency**: Users always know current task status and next steps
+- **Completion Validation**: Ensures tasks are fully completed before marking as done
+- **Error Prevention**: Prevents marking tasks complete when tests fail or errors occur
+
+#### 🔄 Intelligent Task Flow
+
+**Chapter5 (Manual Planning):**
+```
+🤖 I'll help you implement these features
+*Proceeds without clear tracking*
 ```
 
-### 2. Enhanced User Interaction Experience **[NEW]**
-
-#### 🗣️ Smart Rejection Reason Capture
-- **Reason Collection**: When users reject tool execution, actively asks and records specific reasons
-- **Context Understanding**: AI can understand rejection reasons and make more appropriate follow-up responses
-- **Interaction Optimization**: From simple "user rejected" to detailed rejection reasons and suggestions
-
-#### 💬 User Experience Comparison
-
-**Chapter4 (Simple Rejection):**
+**Chapter6 (Structured Management):**
 ```
-🤖 Need to execute command: rm important_file.txt
-❌ User rejected tool execution
-```
+🤖 Let me create a todo list to track this implementation
+✅ Created 4 tasks: user auth, product catalog, cart, checkout
+🔄 Starting with user authentication...
+✅ Completed: user authentication setup
+### 3. Smart Decision Engine for Task Management
 
-**Chapter5 (Smart Reason Capture):**
-```
-🤖 Need to execute command: rm important_file.txt  
-❌ User rejected: "This file is still needed, please use backup file instead"
-🤖 Understood, I'll help you operate the backup file instead of the original file
-```
+#### 🧠 Intelligent Usage Detection
+- **Complexity Analysis**: Evaluates if tasks require systematic tracking (3+ steps)
+- **User Intent Recognition**: Identifies explicit or implicit requests for organization
+- **Scope Assessment**: Determines when todo lists provide organizational benefit
+- **Context Awareness**: Understands when NOT to use todos for simple tasks
 
-### 3. Architecture Optimization and Stability Improvements
+#### ⚡ Performance & Efficiency
+- **Single Task Optimization**: Skips todo creation for trivial, single-step tasks
+- **Real-time Updates**: Updates task status immediately as work progresses
+- **Memory Efficiency**: Maintains task state across conversation context
+- **Progress Persistence**: Tracks completion status throughout session
 
-#### 🏗️ HistoryManager Singleton Pattern
-- **State Consistency**: Global single history manager instance, avoiding state conflicts
-- **Memory Optimization**: Reduces duplicate instance creation, improves performance
-- **Thread Safety**: Ensures data consistency in multi-threaded environments
-
-#### 🛡️ Enhanced Error Handling
-- **Unified Tool Exception Handling**: ToolManager uniformly catches and handles tool execution exceptions
-- **Clear Error Identification**: CmdRunner error messages add "cmd_runner" prefix for easier debugging
-- **Defensive Programming**: Prevents single tool exceptions from causing entire system crashes
-
-#### 🔧 Code Quality Improvements
-- **Abstract Method Enforcement**: BaseAgent adds abstract method constraints to ensure tool implementation standards
-- **Type Safety**: New Crop_Direction enum provides type-safe cropping direction control
-- **Boundary Checking**: Strict cropping parameter validation and boundary protection
+#### 🛡️ Quality Assurance Integration
+- **Test Validation**: Only marks tasks complete when tests pass
+- **Error Handling**: Keeps tasks in-progress when encountering failures
+- **Completion Criteria**: Ensures all requirements met before marking done
+- **Dependency Tracking**: Manages task dependencies and prerequisites
 
 ### 4. Developer Experience Improvements
 
 #### 🐛 Enhanced Debug Support
 - **VSCode Configuration**: New chapter5-specific debug launch configuration
-- **Error Message Optimization**: More detailed and specific error prompt messages
-- **Tool Description Completion**: Improved tool description documentation for better development efficiency
+### 4. New Core Tool: TodoWrite
 
-### 5. New Core Tool: SmartContextCropper
+#### 🛠️ TodoWrite - Structured Task Management Tool
 
-#### 🔧 SmartContextCropper - Smart Context Cropping Tool
-
-[`SmartContextCropper`](src/tools/smart_context_cropper.py) is Chapter5's flagship new tool:
+[`TodoWrite`](src/tools/todo_write.py) is Chapter6's flagship productivity enhancement:
 
 **🎯 Core Functions**:
 ```python
-def act(self, crop_direction: Crop_Direction, crop_amount: int, deleted_messages_summary: str)
+def act(self, todos: List[Todo]) -> str:
+    # Creates, updates, and manages structured task lists
+    # Provides real-time progress tracking and status updates
 ```
 
-**🛡️ Safety Guarantees**:
-- Automatically protects latest user messages from being cropped
-- Preserves all system messages (system role)
-- Strict boundary checking prevents over-cropping
+**📋 Task States**:
+- `pending`: Task not yet started
+- `in_progress`: Currently working on (limit to ONE at a time)
+- `completed`: Task finished successfully
 
-**📋 Tool Parameters**:
-- `crop_direction`: "top" | "bottom" - Cropping direction
-- `crop_amount`: Positive integer - Number of messages to crop  
-- `deleted_messages_summary`: Brief summary of deleted content
-- `need_user_approve`: Whether user approval needed (default: true)
+**🔧 Tool Parameters**:
+- `todos`: List of task objects with id, content, and status
+- Automatic reminder system for task management
+- Real-time status updates and progress tracking
 
 #### ⚡ Usage Scenarios
 
-**1. Debug Conversation Cleanup**:
+**1. Feature Development**:
 ```bash
-# Keep problem description and final solution, clean up intermediate failed attempts
-smart_context_cropper(crop_direction="bottom", crop_amount=5, 
-    deleted_messages_summary="Cleared 5 failed debug attempts, keeping core problem and solution")
+# Multi-component feature requiring systematic approach
+todo_write([
+    {"id": "1", "content": "Create user authentication API", "status": "pending"},
+    {"id": "2", "content": "Build frontend login component", "status": "pending"},
+    {"id": "3", "content": "Implement session management", "status": "pending"},
+    {"id": "4", "content": "Add security middleware", "status": "pending"}
+])
 ```
 
-**2. Long Conversation Optimization**:
-```bash  
-# Clean up early unrelated conversations, focus on current task
-smart_context_cropper(crop_direction="top", crop_amount=8,
-    deleted_messages_summary="Removed early data analysis conversations, currently focused on API development")
-```
-
-**3. Performance Optimization**:
+**2. Bug Fix Workflow**:
 ```bash
-# Proactively clean when context window approaches limit
-smart_context_cropper(crop_direction="top", crop_amount=3,
-    deleted_messages_summary="Cleaned history messages to optimize performance, keeping current project core discussion")
-```
+# Systematic debugging approach
+todo_write([
+    {"id": "1", "content": "Reproduce error in development", "status": "in_progress"},
+    {"id": "2", "content": "Identify root cause in codebase", "status": "pending"},
+    {"id": "3", "content": "Implement fix and write tests", "status": "pending"},
+    {"id": "4", "content": "Validate fix in staging environment", "status": "pending"}
+])
+#### 🔍 Smart Management Logic
 
-#### 🔍 Smart Judgment Logic
-
-Tool has built-in smart judgment mechanism:
-- **Auto Assessment**: Analyzes relevance between cropped content and current task
-- **User Confirmation**: Proactively requests user approval when uncertain
-- **Summary Generation**: Generates concise summaries for important deleted content
-- **Context Protection**: Ensures key context information is not lost
-
+Tool features intelligent decision-making:
+- **Task Assessment**: Automatically evaluates if todo lists add value
+- **Scope Recognition**: Identifies complex vs simple task requirements  
+- **Progress Monitoring**: Tracks completion status and prevents premature marking
+- **Context Preservation**: Maintains task state throughout conversation
+- **Reminder System**: Automatically reminds about pending task management
 ## 🎯 Version Comparison
 
-| Feature | Chapter3 | Chapter4 | Chapter5 |
+| Feature | Chapter4 | Chapter5 | Chapter6 |
 |---------|----------|----------|----------|
 | Response Mode | ✅ Real-time streaming | ✅ Real-time streaming | ✅ Real-time streaming |
-| History Management | ❌ Unlimited accumulation | 🆕 Intelligent compression | 🆕 Intelligent compression |
-| **Smart Cropping** | ❌ Not supported | ❌ Not supported | 🆕 **Precise cropping** |
-| **User Interaction** | ❌ Simple rejection | ❌ Simple rejection | 🆕 **Reason capture** |
-| **Architecture Stability** | ❌ Basic architecture | ✅ History management | 🆕 **Singleton pattern** |
-| **Error Handling** | ❌ Basic handling | ✅ Improved handling | 🆕 **Unified exceptions** |
-
+| History Management | 🆕 Intelligent compression | 🆕 Intelligent compression | 🆕 Intelligent compression |
+| Smart Cropping | ❌ Not supported | 🆕 **Precise cropping** | 🆕 **Precise cropping** |
+| User Interaction | ❌ Simple rejection | 🆕 **Reason capture** | 🆕 **Reason capture** |
+| **Task Management** | ❌ No structure | ❌ No structure | 🆕 **TodoWrite tool** |
+| **Progress Tracking** | ❌ Manual tracking | ❌ Manual tracking | 🆕 **Automated tracking** |
+| **Productivity Features** | ❌ Basic workflow | ❌ Basic workflow | 🆕 **Structured workflow** |
 ## 🧪 Test Coverage
 
-Chapter5 includes complete smart cropping and history management test suite:
+Chapter6 includes comprehensive TodoWrite tool testing:
 
 ```bash
+# Run todo management tests [NEW]
+python test/test_todo_write.py
+
+# Run existing smart cropping tests
+python test/test_crop_message.py
+
 # Run history compression tests
 python test/test_history_compress.py
+```
+
+Test coverage:
+- ✅ **TodoWrite tool functionality** **[NEW]**
+- ✅ **Task state management** **[NEW]**
+- ✅ **Progress tracking validation** **[NEW]**
+- ✅ **Automatic reminder system** **[NEW]**
+- ✅ Smart cropping functionality
+- ✅ TOP/BOTTOM cropping strategies
+## Summary
+
+The core idea of this framework is to let AI "think" (through conversation) and "act" (through tool calls), requiring user confirmation for potentially risky operations. Chapter6's TodoWrite tool introduces systematic task management, providing users with structured workflow organization and automated progress tracking. Combined with Chapter5's smart cropping and enhanced user interaction capabilities, the system now offers a comprehensive productivity platform that helps users manage complex projects with confidence and clarity, building towards truly practical AI assistants.
 
 # Run smart cropping tests [NEW]
 python test/test_crop_message.py
