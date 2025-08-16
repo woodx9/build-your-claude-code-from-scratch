@@ -1,105 +1,178 @@
-# QuickStar - Smart Context Agent
+# Chapter 6: Structured Task Management
 
 [中文版本](./README_zh.md)
 
-A ReAct (Reasoning and Acting) based AI agent system with real-time streaming, intelligent history management, cost tracking, smart context cropping, and structured task management.
+## What's New in Chapter 6
 
-## 🚀 What's New in Chapter 6
+Chapter 6 introduces the **TodoWrite Tool** - an intelligent task management system that automatically organizes complex workflows into structured, trackable todo lists:
 
-Chapter 6 introduces the **TodoWrite Tool** - an intelligent task management system that automatically organizes complex workflows into structured todo lists with real-time progress tracking.
+### 🛠️ TodoWrite Tool
+- **Automated organization**: Converts complex requests into structured task lists
+- **Real-time tracking**: Live progress updates with task state management
+- **Quality assurance**: Prevents premature task completion until requirements are met
+- **Context awareness**: Intelligently decides when todo lists add value vs. simple execution
 
-### Key Benefits
-- **Automated Organization**: Converts complex requests into structured task lists
-- **Progress Visibility**: Real-time tracking of task completion status  
-- **Quality Assurance**: Prevents marking tasks complete until all requirements are met
-- **Context Awareness**: Intelligently decides when todo lists add value
+## Task Management Philosophy
 
-## 🛠️ TodoWrite Tool
+### When to Use TodoWrite
+**✅ Use for complex workflows**:
+- Multi-step implementation tasks
+- Projects requiring 3+ distinct actions
+- Tasks with dependencies or specific order
+- User explicitly requests organization
 
-### Core Features
-- **Task States**: `pending` → `in_progress` → `completed`
-- **Smart Detection**: Automatically activates for multi-step tasks (3+ operations)
-- **Single Focus**: Only one task can be `in_progress` at a time
-- **Completion Validation**: Tasks marked complete only when tests pass and requirements are fully met
+**❌ Skip for simple tasks**:
+- Single command execution  
+- Straightforward questions
+- Trivial operations
+- Quick information lookups
 
-### When It Activates
-```bash
-# Multi-step feature requests
-User: "Add dark mode toggle, run tests, and build the app"
-→ Creates structured todo list automatically
+## Task State Management
 
-# Multiple feature requests  
-User: "Implement user registration, product catalog, shopping cart"
-→ Breaks down into organized subtasks
-
-# Complex debugging workflows
-User: "Fix the API latency issues and optimize performance"
-→ Creates systematic investigation plan
+### Task Lifecycle
+```
+pending → in_progress → completed
 ```
 
-### Usage Examples
+### State Rules
+- **Only ONE task `in_progress`** at any time
+- **Mark complete ONLY when fully done** - no partial completions
+- **Real-time updates** as work progresses
+- **Quality gates** prevent premature completion
 
-**Feature Development**:
+## TodoWrite Tool Capabilities
+
+### Automatic Task Breakdown
 ```python
-# Automatically created for complex features
-[
-  {"content": "Create authentication API endpoints", "status": "pending"},
-  {"content": "Build login/register UI components", "status": "pending"}, 
-  {"content": "Implement session management", "status": "pending"},
-  {"content": "Add security middleware and tests", "status": "pending"}
-]
+User: "Add dark mode to my app, run tests, and deploy"
+
+AI creates todo list:
+1. [pending] Implement dark mode toggle component
+2. [pending] Add dark mode CSS variables and styling  
+3. [pending] Update existing components for theme support
+4. [pending] Run test suite and fix any failures
+5. [pending] Deploy application to production
 ```
 
-**Bug Fix Workflow**:
+### Progress Tracking
 ```python
-# Systematic debugging approach
-[
-  {"content": "Reproduce issue in development", "status": "in_progress"},
-  {"content": "Identify root cause", "status": "pending"},
-  {"content": "Implement fix with tests", "status": "pending"},
-  {"content": "Validate in staging", "status": "pending"}
-]
+# AI updates status in real-time
+1. [completed] Implement dark mode toggle component
+2. [in_progress] Add dark mode CSS variables and styling
+3. [pending] Update existing components for theme support
+4. [pending] Run test suite and fix any failures  
+5. [pending] Deploy application to production
 ```
 
-## 📊 Feature Evolution
+### Quality Assurance
+The tool prevents marking tasks complete when:
+- Tests are failing
+- Implementation is partial
+- Errors are unresolved
+- Dependencies aren't met
 
-| Capability | Chapter 4 | Chapter 5 | Chapter 6 |
-|------------|-----------|-----------|-----------|
-| Streaming Output | ✅ | ✅ | ✅ |
-| History Management | ✅ | ✅ | ✅ |
-| Smart Cropping | ❌ | ✅ | ✅ |
-| User Interaction | Basic | Enhanced | Enhanced |
-| **Task Management** | ❌ | ❌ | **✅ TodoWrite** |
-| **Progress Tracking** | Manual | Manual | **✅ Automated** |
+## Technical Implementation
 
-## 🧪 Testing
+### TodoWrite Tool
+[`TodoWrite`](src/tools/todo_write.py) - Structured task management:
 
-```bash
-# Test TodoWrite functionality
-python test/test_todo_write.py
-
-# Test smart cropping
-python test/test_crop_message.py
-
-# Test history compression  
-python test/test_history_compress.py
+```python
+def execute(self, todos):
+    """Manage structured todo list with state tracking"""
+    
+    # Validate task states
+    # Ensure only one in_progress task
+    # Update conversation context
+    # Provide user feedback
 ```
 
-## 🎯 Architecture Philosophy
+### Task Structure
+```python
+{
+    "id": "unique_identifier",
+    "content": "Descriptive task content", 
+    "status": "pending|in_progress|completed"
+}
+```
 
-**Think → Act → Validate**
+## Integration with Existing Features
 
-1. **Think**: AI analyzes requests and creates structured plans via TodoWrite
-2. **Act**: Execute tasks systematically with tool calls
-3. **Validate**: Require user confirmation for risky operations
+### Works with All Previous Chapters
+- **Tool calling** (Ch1): TodoWrite is just another tool in the chain
+- **ReAct architecture** (Ch2): Tasks guide the Think-Act-Observe cycle
+- **Streaming** (Ch3): Todo updates stream in real-time
+- **History management** (Ch4): Tasks preserved across compressions
+- **Smart cropping** (Ch5): Todo context maintained during cropping
 
-The TodoWrite tool enhances this flow by providing transparent task organization, progress tracking, and completion validation - ensuring complex workflows are handled systematically and reliably.
+### Enhanced User Experience
+```
+📋 Todo List Updated:
+   ✅ 1. Setup development environment
+   🔄 2. Implement user authentication  
+   ⏳ 3. Add dashboard components
+   ⏳ 4. Write comprehensive tests
+   
+Progress: 1/4 completed (25%)
+```
 
-## Quick Start
+## Example Workflows
 
-1. Clone the repository
-2. Install dependencies
-3. Run the agent with TodoWrite enabled
-4. Watch as complex requests are automatically organized into manageable task lists
+### Software Development
+```
+User: "Implement a blog feature with authentication"
 
-The system intelligently decides when to use structured task management, making it seamless for both simple queries and complex multi-step workflows.
+Generated todos:
+1. Create blog post model and database schema
+2. Implement CRUD API endpoints for posts
+3. Add user authentication and authorization
+4. Create frontend components for blog management
+5. Write unit and integration tests
+6. Update documentation and deploy
+```
+
+### System Administration  
+```
+User: "Set up monitoring for our web services"
+
+Generated todos:
+1. Install and configure Prometheus monitoring
+2. Set up Grafana dashboards for visualization
+3. Create alerting rules for critical metrics
+4. Configure notification channels (email, Slack)
+5. Test monitoring system with simulated failures
+6. Document monitoring procedures for team
+```
+
+## Benefits
+
+- **Organization**: Complex tasks become manageable workflows
+- **Visibility**: Clear progress tracking for users and AI
+- **Quality**: Built-in quality gates prevent incomplete work
+- **Context**: Task structure preserved across conversation management
+- **Efficiency**: AI makes better decisions with structured task context
+
+## Best Practices
+
+### For Users
+- Provide clear, multi-step requests to trigger TodoWrite
+- Review task breakdowns before AI begins execution
+- Allow AI to complete current tasks before adding new ones
+
+### For AI Implementation
+- Break down complex requests into 3-7 manageable tasks
+- Use descriptive task names that indicate clear completion criteria
+- Only mark tasks complete when fully satisfied
+- Update progress in real-time as work proceeds
+
+## Advanced Features
+
+### Task Dependencies
+TodoWrite implicitly handles dependencies through task ordering and the "one in_progress" rule.
+
+### Error Recovery
+When tasks fail, AI can:
+- Add new tasks to address blockers
+- Modify existing tasks to reflect new requirements
+- Maintain task context across error resolution
+
+This completes the agent learning journey from basic tool calling to sophisticated workflow management! 🎉

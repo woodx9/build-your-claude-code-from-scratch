@@ -1,161 +1,135 @@
-# QuickStar - Smart Context Agent
+# Chapter 5: Smart Context Cropping
 
 [中文版本](./README_zh.md)
 
-A ReAct (Reasoning and Acting) based AI agent system supporting **real-time streaming output**, **intelligent history management**, **cost tracking**, **smart context cropping**, tool calling, and user interaction.
+## What's New in Chapter 5
 
-## 🚀 Chapter5 Major Updates
+Chapter 5 adds **Smart Context Cropping** - a precision tool for advanced conversation management, building on Chapter 4's automatic history compression:
 
-### 1. Smart Context Cropping Feature **[NEW]**
+### 🎯 Smart Context Cropper Tool
+- **Precision control**: Crop specific number of messages from TOP or BOTTOM
+- **Safety guarantees**: Always protects latest user messages and system messages  
+- **Summary support**: Optional summaries for cropped content to maintain context continuity
+- **Immediate effect**: Cropping operations take effect instantly for performance optimization
+- **Integration**: Seamlessly works with existing tool chain and approval system
 
-Chapter5's core new feature is **Smart Context Cropping**, providing advanced users with fine-grained message management control:
-- 🎯 **Precise Cropping**: Supports cropping specified number of messages from TOP or BOTTOM
-- 🔒 **Safety Guarantee**: Strictly protects latest user messages and system messages from accidental cropping
-- 📝 **Cropping Summary**: Supports providing concise summaries for cropped content to maintain context continuity
-- 🛠️ **New Tool**: SmartContextCropper tool, seamlessly integrated with existing tool chain
-- ⚡ **Immediate Effect**: Cropping operations take effect immediately, optimizing long conversation performance
+## Context Cropping vs Auto Compression
 
-#### 🎛️ Cropping Strategies
+| Feature | Auto Compression (Ch4) | Smart Cropping (Ch5) |
+|---------|----------------------|---------------------|
+| **Trigger** | Automatic (threshold) | Manual (user/AI decision) |
+| **Control** | System-driven | User/AI-driven |
+| **Precision** | Session-level | Message-level |
+| **Use Case** | Performance management | Strategic context control |
+
+## Cropping Strategies
+
+### TOP Cropping
+Remove oldest messages while preserving system context:
 ```python
-# Crop from top - remove oldest N messages (preserve system messages)
-crop_direction: "top", crop_amount: 3
-
-# Crop from bottom - remove most recent N messages (protect latest user message)  
-crop_direction: "bottom", crop_amount: 2
+# Before: [System] [Old-1] [Old-2] [Recent-1] [Recent-2] [Latest-User]
+# Crop TOP 2 messages
+# After:  [System] [Recent-1] [Recent-2] [Latest-User]
 ```
 
-### 2. Enhanced User Interaction Experience **[NEW]**
-
-#### 🗣️ Smart Rejection Reason Capture
-- **Reason Collection**: When users reject tool execution, actively asks and records specific reasons
-- **Context Understanding**: AI can understand rejection reasons and make more appropriate follow-up responses
-- **Interaction Optimization**: From simple "user rejected" to detailed rejection reasons and suggestions
-
-#### 💬 User Experience Comparison
-
-**Chapter4 (Simple Rejection):**
-```
-🤖 Need to execute command: rm important_file.txt
-❌ User rejected tool execution
-```
-
-**Chapter5 (Smart Reason Capture):**
-```
-🤖 Need to execute command: rm important_file.txt  
-❌ User rejected: "This file is still needed, please use backup file instead"
-🤖 Understood, I'll help you operate the backup file instead of the original file
-```
-
-### 3. Architecture Optimization and Stability Improvements
-
-#### 🏗️ HistoryManager Singleton Pattern
-- **State Consistency**: Global single history manager instance, avoiding state conflicts
-- **Memory Optimization**: Reduces duplicate instance creation, improves performance
-- **Thread Safety**: Ensures data consistency in multi-threaded environments
-
-#### 🛡️ Enhanced Error Handling
-- **Unified Tool Exception Handling**: ToolManager uniformly catches and handles tool execution exceptions
-- **Clear Error Identification**: CmdRunner error messages add "cmd_runner" prefix for easier debugging
-- **Defensive Programming**: Prevents single tool exceptions from causing entire system crashes
-
-#### 🔧 Code Quality Improvements
-- **Abstract Method Enforcement**: BaseAgent adds abstract method constraints to ensure tool implementation standards
-- **Type Safety**: New Crop_Direction enum provides type-safe cropping direction control
-- **Boundary Checking**: Strict cropping parameter validation and boundary protection
-
-### 4. Developer Experience Improvements
-
-#### 🐛 Enhanced Debug Support
-- **VSCode Configuration**: New chapter5-specific debug launch configuration
-- **Error Message Optimization**: More detailed and specific error prompt messages
-- **Tool Description Completion**: Improved tool description documentation for better development efficiency
-
-### 5. New Core Tool: SmartContextCropper
-
-#### 🔧 SmartContextCropper - Smart Context Cropping Tool
-
-[`SmartContextCropper`](src/tools/smart_context_cropper.py) is Chapter5's flagship new tool:
-
-**🎯 Core Functions**:
+### BOTTOM Cropping  
+Remove recent messages (except latest user message):
 ```python
-def act(self, crop_direction: Crop_Direction, crop_amount: int, deleted_messages_summary: str)
+# Before: [System] [Old-1] [Old-2] [Recent-1] [Recent-2] [Latest-User]
+# Crop BOTTOM 2 messages  
+# After:  [System] [Old-1] [Old-2] [Latest-User]
 ```
 
-**🛡️ Safety Guarantees**:
-- Automatically protects latest user messages from being cropped
-- Preserves all system messages (system role)
-- Strict boundary checking prevents over-cropping
+## Smart Context Cropper Tool
 
-**📋 Tool Parameters**:
-- `crop_direction`: "top" | "bottom" - Cropping direction
-- `crop_amount`: Positive integer - Number of messages to crop  
-- `deleted_messages_summary`: Brief summary of deleted content
-- `need_user_approve`: Whether user approval needed (default: true)
-
-#### ⚡ Usage Scenarios
-
-**1. Debug Conversation Cleanup**:
-```bash
-# Keep problem description and final solution, clean up intermediate failed attempts
-smart_context_cropper(crop_direction="bottom", crop_amount=5, 
-    deleted_messages_summary="Cleared 5 failed debug attempts, keeping core problem and solution")
+### Tool Definition
+```python
+{
+    "name": "smart_context_cropper",
+    "description": "Crop conversation history with safety guarantees",
+    "parameters": {
+        "need_user_approve": "Whether to require user approval",
+        "crop_direction": "Direction: 'top' or 'bottom'", 
+        "crop_amount": "Number of messages to remove",
+        "deleted_messages_summary": "Summary of removed content"
+    }
+}
 ```
 
-**2. Long Conversation Optimization**:
-```bash  
-# Clean up early unrelated conversations, focus on current task
-smart_context_cropper(crop_direction="top", crop_amount=8,
-    deleted_messages_summary="Removed early data analysis conversations, currently focused on API development")
+### Usage Examples
+
+**Scenario 1**: Clean up debugging logs
+```
+AI: I found the issue after several attempts. Let me clean up the debugging history.
+<smart_context_cropper>
+  need_user_approve: false
+  crop_direction: bottom
+  crop_amount: 5
+  deleted_messages_summary: "Removed 5 debugging attempts with error logs. Issue was resolved by fixing the database connection string."
+</smart_context_cropper>
 ```
 
-**3. Performance Optimization**:
-```bash
-# Proactively clean when context window approaches limit
-smart_context_cropper(crop_direction="top", crop_amount=3,
-    deleted_messages_summary="Cleaned history messages to optimize performance, keeping current project core discussion")
+**Scenario 2**: Focus on current task
+```
+User: Let's crop the discussion about previous features and focus on the current implementation.
+AI: I'll crop the previous discussion to focus on your current task.
+<smart_context_cropper>
+  need_user_approve: true
+  crop_direction: top  
+  crop_amount: 8
+  deleted_messages_summary: "Removed discussion about feature A and B. Current focus: implementing feature C with authentication."
+</smart_context_cropper>
 ```
 
-#### 🔍 Smart Judgment Logic
+## Technical Implementation
 
-Tool has built-in smart judgment mechanism:
-- **Auto Assessment**: Analyzes relevance between cropped content and current task
-- **User Confirmation**: Proactively requests user approval when uncertain
-- **Summary Generation**: Generates concise summaries for important deleted content
-- **Context Protection**: Ensures key context information is not lost
+### SmartContextCropper Tool
+[`SmartContextCropper`](src/tools/smart_context_cropper.py):
 
-## 🎯 Version Comparison
-
-| Feature | Chapter3 | Chapter4 | Chapter5 |
-|---------|----------|----------|----------|
-| Response Mode | ✅ Real-time streaming | ✅ Real-time streaming | ✅ Real-time streaming |
-| History Management | ❌ Unlimited accumulation | 🆕 Intelligent compression | 🆕 Intelligent compression |
-| **Smart Cropping** | ❌ Not supported | ❌ Not supported | 🆕 **Precise cropping** |
-| **User Interaction** | ❌ Simple rejection | ❌ Simple rejection | 🆕 **Reason capture** |
-| **Architecture Stability** | ❌ Basic architecture | ✅ History management | 🆕 **Singleton pattern** |
-| **Error Handling** | ❌ Basic handling | ✅ Improved handling | 🆕 **Unified exceptions** |
-
-## 🧪 Test Coverage
-
-Chapter5 includes complete smart cropping and history management test suite:
-
-```bash
-# Run history compression tests
-python test/test_history_compress.py
-
-# Run smart cropping tests [NEW]
-python test/test_crop_message.py
+```python
+def execute(self, need_user_approve, crop_direction, crop_amount, deleted_messages_summary):
+    """Execute smart context cropping with safety checks"""
+    
+    # Validate parameters
+    # Apply safety protections  
+    # Perform cropping operation
+    # Update conversation state
 ```
 
-Test coverage:
-- ✅ Auto compression trigger conditions
-- ✅ Multi-session compression logic
-- ✅ Single-session compression logic
-- ✅ Token usage updates
-- ✅ **Smart cropping functionality** **[NEW]**
-- ✅ **TOP/BOTTOM cropping strategies** **[NEW]**
-- ✅ **User message protection mechanism** **[NEW]**
-- ✅ **Boundary check validation** **[NEW]**
+### Safety Mechanisms
+- **User message protection**: Latest user message never removed
+- **System message protection**: System prompts always preserved
+- **Approval flow**: Dangerous operations require confirmation
+- **Validation**: Parameter validation prevents invalid operations
 
-## Summary
+## Integration with Existing Features
 
-The core idea of this framework is to let AI "think" (through conversation) and "act" (through tool calls), and require user confirmation when executing potentially risky operations. Chapter5's smart cropping functionality provides users with fine-grained context control capabilities, enhanced user interaction experience enables AI to better understand user intentions, through singleton pattern and unified exception handling, the system architecture is more stable and reliable, laying a solid foundation for building truly practical AI assistants.
+### Works with Chapter 4 Features
+- **Auto compression**: Smart cropping works alongside automatic compression
+- **Cost tracking**: Cropped messages still counted for cost calculation
+- **History management**: Integrates with existing history management system
+
+### Enhanced User Experience
+```
+🎯 Smart cropping: Removed 3 messages from TOP
+📝 Summary: Cleaned up initial setup discussion. Focus: deployment configuration
+💬 Context: 2,100/8,192 tokens (26%) 💰 Session: $0.018
+```
+
+## Use Cases
+
+- **Long debugging sessions**: Remove resolved issues to focus on current problems
+- **Topic transitions**: Clean context when switching to unrelated topics  
+- **Performance optimization**: Strategic removal for faster processing
+- **Context focus**: Maintain relevant information while removing distractions
+
+## Benefits
+
+- **Precision**: Exact control over what gets removed
+- **Safety**: Built-in protections prevent accidental data loss
+- **Flexibility**: Works for both automated and manual context management
+- **Performance**: Immediate optimization without restarting conversations
+
+## Next Steps
+
+→ **Chapter 6**: Add structured task management with the TodoWrite tool for complex workflow organization.
