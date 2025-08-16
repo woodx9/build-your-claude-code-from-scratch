@@ -318,15 +318,3 @@ For issues and questions:
 ---
 
 **Note**: This project demonstrates progressive AI agent development. Start with Chapter 1 to understand basic tool calling concepts, then move to Chapter 2 for ReAct patterns, Chapter 3 for streaming capabilities, and finally Chapter 4 for advanced history management.
-
-## Chapter Comparison: Evolution of Features
-
-| Feature | Chapter 1 | Chapter 2 | Chapter 3 | Chapter 4 | Chapter 5 |
-|---------|-----------|-----------|-----------|-----------|-----------|
-| Tool Calling | ✅ Basic | ✅ ReAct | ✅ ReAct | ✅ ReAct | ✅ ReAct |
-| Real-time Streaming | ❌ | ❌ | ✅ NEW | ✅ | ✅ |
-| History Management | ❌ | ❌ | ❌ | ✅ NEW | ✅ |
-| Auto Compression | ❌ | ❌ | ❌ | ✅ NEW | ✅ |
-| Cost Tracking | ❌ | ❌ | ❌ | ✅ NEW | ✅ |
-| **Smart Cropping** | ❌ | ❌ | ❌ | ❌ | ✅ **NEW** |
-| **Enhanced UX** | ❌ | ❌ | ❌ | ❌ | ✅ **NEW** |
