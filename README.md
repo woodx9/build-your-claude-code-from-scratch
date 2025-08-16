@@ -39,56 +39,46 @@ This project demonstrates the progressive development of AI agents, from basic t
 └── chapter6_to_do_write/         # Task management with TodoWrite tool [NEW]
 ```
 
-## Features by Chapter
-
-### Chapter 1: Tool Call API
-- **Native Function Call**: Standard OpenAI function calling interface with JSON Schema
-- **XML Tool Call**: Flexible tool calling using XML format in natural language
-- Comparison of two different tool calling approaches
-- Basic API client setup and tool execution
+### Chapter 1: Tool Call API Fundamentals
+- **Native Function Call**: Standard OpenAI JSON Schema interface with type safety
+- **XML Tool Call**: Universal XML format compatible with any text model
+- Comparison and use cases for both approaches
 - Foundation for understanding tool calling patterns
 
-### Chapter 2: ReAct Agent
-- Basic ReAct (Reasoning and Acting) pattern implementation
-- Tool calling capabilities building on Chapter 1 concepts
-- API client with environment variable configuration
-- Error handling for missing environment variables
+### Chapter 2: ReAct Agent Architecture
+- **ReAct pattern**: Think-Act-Observe cycle for intelligent agents
+- **Recursive conversation handling** for continuous AI interactions
+- **User approval system** for dangerous operations with safety controls
+- **Singleton conversation manager** for consistent state management
+- Complete tool execution framework with error handling
 
-### Chapter 3: Stream Agent
-- All features from Chapter 2
-- **NEW**: Real-time streaming responses
-- **NEW**: Progressive output display
-- Enhanced user experience with live feedback
+### Chapter 3: Real-Time Streaming Agent
+- **Character-by-character streaming** for immediate AI response visibility
+- **Streaming tool calls** that work seamlessly with tool execution
+- **Configuration externalization** with .env file management
+- Graceful degradation with auto-fallback to standard mode
+- Improved user experience with no waiting for complete responses
 
-### Chapter 4: History Control
-- All features from Chapter 3
-- **NEW**: Conversation history management
-- **NEW**: Context compression when reaching token limits
-- **NEW**: Memory optimization for long conversations
+### Chapter 4: Intelligent History Management
+- **Auto history compression** with smart multi-session and single-session strategies
+- **Real-time token monitoring** with context usage percentage display
+- **Comprehensive cost tracking** with model-specific pricing and session summaries
+- **Preservation guarantees** for system messages and recent context
+- Performance optimization for long-running conversations
 
+### Chapter 5: Smart Context Cropping
+- **Precision context control** with TOP/BOTTOM message cropping strategies
+- **Smart Context Cropper tool** for manual conversation management
+- **Safety guarantees** protecting latest user messages and system prompts
+- **Summary support** for cropped content to maintain context continuity
+- **Integration** with existing auto-compression and cost tracking systems
 
-
-### Chapter 5: Smart Context Management
-- All features from Chapter 4
-- **NEW**: Smart context cropping with TOP/BOTTOM strategies
-- **NEW**: Intelligent user denial reason capture  
-- **NEW**: Enhanced error handling with unified exception management
-- **NEW**: Singleton pattern for HistoryManager ensuring state consistency
-- **NEW**: SmartContextCropper tool for precise message management
-- **NEW**: Advanced debugging support with VSCode configurations
-- **NEW**: Comprehensive safety guarantees protecting user messages
-
-### Chapter 6: TodoWrite Tool - Task Management [NEW]
-- All features from Chapter 5
-- **NEW**: TodoWrite tool for structured task management and progress tracking
-- **NEW**: Intelligent task organization with automatic todo list creation
-- **NEW**: Real-time progress monitoring and status updates
-- **NEW**: Smart decision engine for task complexity analysis
-- **NEW**: Context-aware task management with proactive detection
-- **NEW**: Quality assurance integration with test validation
-- **NEW**: Automatic reminder system for pending task management
-- **NEW**: Visual progress indicators and completion validation
-
+### Chapter 6: Structured Task Management
+- **TodoWrite tool** for automated task organization and progress tracking
+- **Intelligent workflow breakdown** converting complex requests into structured lists
+- **Real-time state management** with pending/in_progress/completed lifecycle
+- **Quality assurance gates** preventing premature task completion
+- **Context awareness** deciding when todo lists add value vs. simple execution
 
 ## Prerequisites
 
@@ -306,7 +296,7 @@ print(f'Using model: {client.model}')
 
 ## License
 
-This project is for educational purposes. Please respect the terms of service of your chosen API provider.
+MIT license
 
 ## Support
 
