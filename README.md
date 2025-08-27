@@ -9,7 +9,6 @@
 **✨ Try Quick Star CLI now!** An intelligent AI agent with elegant command-line interface, real-time streaming responses, and powerful code generation capabilities.
 
 ## 🎮 See What's Possible: Snake Game Created by AI!
-
 ![Snake Game](resources/images/snake_game.jpg)
 
 **🎯 Play the snake game!** This fully functional game was created entirely through natural language conversations with Quick Star CLI, showcasing:
@@ -36,7 +35,8 @@ This project demonstrates the progressive development of AI agents, from basic t
 ├── chapter3_stream_agent/        # Streaming agent with real-time responses
 ├── chapter4_history_control/     # Advanced agent with conversation history management
 ├── chapter5_smart_context/       # Smart context management with intelligent cropping
-└── chapter6_to_do_write/         # Task management with TodoWrite tool [NEW]
+├── chapter6_to_do_write/         # Task management with TodoWrite tool
+└── chapter7_sub_agent/           # Sub-agent architecture with task delegation [NEW]
 ```
 
 ### Chapter 1: Tool Call API Fundamentals
@@ -79,6 +79,15 @@ This project demonstrates the progressive development of AI agents, from basic t
 - **Real-time state management** with pending/in_progress/completed lifecycle
 - **Quality assurance gates** preventing premature task completion
 - **Context awareness** deciding when todo lists add value vs. simple execution
+
+### Chapter 7: Sub-Agent Architecture
+- **Task Tool** for delegating complex tasks to specialized sub-agents
+- **SubagentManager** with isolated conversation contexts and lifecycle management
+- **Autonomous execution** where sub-agents run independently with full tool access
+- **Async tool system** converting all tools to support proper concurrency
+- **Task delegation flow** for decomposing complex workflows into manageable units
+- **Specialization benefits** with concurrent execution and resource isolation
+
 
 ## Prerequisites
 

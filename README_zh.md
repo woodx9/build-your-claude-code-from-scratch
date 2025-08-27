@@ -9,7 +9,6 @@
 ## 🎮 看看AI能做什么：AI创造的贪吃蛇游戏！
 
 ![贪吃蛇游戏](resources/images/snake_game.jpg)
-
 **🎯 来玩贪吃蛇游戏！** 这个功能完整的游戏完全通过与 Quick Star CLI 的自然语言对话创建，展示了：
 - 🧠 **智能代码生成** - 从简单描述生成完整游戏逻辑
 - 🔧 **实时调试** - 即时迭代和改进代码
@@ -34,7 +33,8 @@
 ├── chapter3_stream_agent/        # 具有实时响应的流式智能体
 ├── chapter4_history_control/     # 具有对话历史管理的高级智能体
 ├── chapter5_smart_context/       # 具有智能裁剪的智能上下文管理
-└── chapter6_to_do_write/         # 使用TodoWrite工具的任务管理 [新增]
+├── chapter6_to_do_write/         # 使用TodoWrite工具的任务管理
+└── chapter7_sub_agent/           # 具有任务委托的子智能体架构 [新增]
 ```
 
 ## 各章节功能特性
@@ -79,6 +79,15 @@
 - **实时状态管理**包含 pending/in_progress/completed 生命周期
 - **质量保证门控**防止任务提前完成
 - **上下文感知**决定何时使用待办列表而非简单执行
+
+### 第7章：子智能体架构
+- **Task工具** 将复杂任务委托给专门的子智能体
+- **SubagentManager** 具有隔离的对话上下文和生命周期管理
+- **自主执行** 子智能体独立运行，具有完整的工具访问权限
+- **异步工具系统** 将所有工具转换为支持适当的并发
+- **任务委托流程** 将复杂工作流程分解为可管理的单元
+- **专业化优势** 具有并发执行和资源隔离
+
 - Conda（推荐）或 pip
 - OpenAI 兼容的 API 访问权限（OpenRouter、OpenAI 等）
 
