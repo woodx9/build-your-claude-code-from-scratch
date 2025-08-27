@@ -3,6 +3,7 @@ Conversation management with refactored UI components and history manager integr
 """
 
 import json
+import sys
 import traceback
 from core.api_client import APIClient
 from core.prompt.prompt_manager import PromptManager
@@ -26,6 +27,7 @@ class Conversation:
     _ui_manager = None
     _history_manager = None
     _prompt_manager = None
+    _is_in_task = False
 
     def __new__(cls):
         """Singleton pattern implementation."""
@@ -78,6 +80,37 @@ class Conversation:
         except Exception as e:
             self._ui_manager.print_error(f"System error occurred: {e}")
             traceback.print_exc()
+
+    async def start_task(self, task_system_prompt: str, user_input: str) -> str:
+        """Start a new task conversation."""
+        # Initialize with system message
+        self._is_in_task = True
+        self._history_manager.start_new_chat()
+        system_message = {
+            "role": "system", 
+            "content": [
+                {"type": "text", "text": task_system_prompt}
+            ]
+        }
+        self.add_message(system_message)
+        
+        user_message = {
+            "role": "user", 
+            "content": [
+                {"type": "text", "text": user_input}
+            ]
+        }
+        self.add_message(user_message)
+
+        try:
+            await self._recursive_message_handling()
+        except Exception as e:
+            self._ui_manager.print_error(f"System error occurred during running task: {e}")
+            traceback.print_exc()
+            sys.exit(1)
+        self._is_in_task = False
+        return self._history_manager.finish_chat_get_response()
+        
 
     async def _recursive_message_handling(self):
         """
@@ -186,6 +219,8 @@ class Conversation:
         else:
             self._print_context_window_and_total_cost()
             # No tool calls, wait for user input
+            if self._is_in_task:
+                return
             user_input = await self._ui_manager.get_user_input()
             user_message = {
                 "role": "user", 
@@ -245,7 +280,7 @@ class Conversation:
         self._ui_manager.show_preparing_tool(tool_call.function.name, tool_args)
         
         try:
-            tool_response = self._tool_manager.run_tool(tool_call.function.name, **tool_args)
+            tool_response = await self._tool_manager.run_tool(tool_call.function.name, **tool_args)
             self._ui_manager.show_tool_execution(
                 tool_call.function.name, 
                 tool_args, 

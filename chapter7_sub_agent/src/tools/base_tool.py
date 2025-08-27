@@ -1,7 +1,7 @@
 from abc import abstractmethod
 
 
-class BaseAgent:
+class BaseTool:
     def __init__(self):
         pass
 
@@ -10,7 +10,7 @@ class BaseAgent:
         return "base_agent"
 
     @abstractmethod
-    def act(self, **kwargs):
+    async def act(self, **kwargs):
         pass
 
     @abstractmethod

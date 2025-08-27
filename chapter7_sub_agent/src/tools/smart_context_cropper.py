@@ -1,8 +1,8 @@
 import subprocess
 from core.history.history_manager import Crop_Direction, HistoryManager
-from tools.base_agent import BaseAgent
+from tools.base_tool import BaseTool
 
-class SmartContextCropper(BaseAgent):
+class SmartContextCropper(BaseTool):
     def __init__(self):
         super().__init__()
         self._history_manager = HistoryManager()
@@ -11,7 +11,7 @@ class SmartContextCropper(BaseAgent):
     def get_tool_name():
         return "smart_context_cropper"
 
-    def act(self, crop_direction: Crop_Direction, crop_amount: int, deleted_messages_summary: str):
+    async def act(self, crop_direction: Crop_Direction, crop_amount: int, deleted_messages_summary: str):
         try:
             if (crop_amount <= 0):
                 return "Invalid crop amount. It must be positive."

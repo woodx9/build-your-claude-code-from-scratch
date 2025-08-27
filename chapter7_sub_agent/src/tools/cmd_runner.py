@@ -1,7 +1,7 @@
 import subprocess
-from tools.base_agent import BaseAgent
+from tools.base_tool import BaseTool
 
-class CmdRunner(BaseAgent):
+class CmdRunner(BaseTool):
     def __init__(self):
         super().__init__()
 
@@ -9,7 +9,7 @@ class CmdRunner(BaseAgent):
     def get_tool_name():
         return "cmd_runner"
 
-    def act(self, command="", timeout=30):
+    async def act(self, command="", timeout=30):
         if not command:
             return "No command provided"
         

@@ -1,8 +1,8 @@
 import json
-from tools.base_agent import BaseAgent
+from tools.base_tool import BaseTool
 from ui.ui_manager import UIManager
 
-class TodoWrite(BaseAgent):
+class TodoWrite(BaseTool):
     def __init__(self):
         super().__init__()
         self.todos = []
@@ -12,7 +12,7 @@ class TodoWrite(BaseAgent):
     def get_tool_name():
         return "todo_write"
 
-    def act(self, todos=None):
+    async def act(self, todos=None):
         if not todos:
             return "No todos provided"
         

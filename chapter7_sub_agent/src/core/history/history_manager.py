@@ -57,6 +57,14 @@ class BaseHistoryManager(ABC):
     def _compress_current_message(self) -> None:
         pass
 
+    @abstractmethod
+    def start_new_chat(self) -> None:
+        pass
+
+    @abstractmethod
+    def finish_chat_get_response(self) -> str:
+        pass
+
 
 class HistoryManager(BaseHistoryManager):
     _instance = None
@@ -141,6 +149,17 @@ class HistoryManager(BaseHistoryManager):
 
     def get_current_messages(self) -> any:
         return  copy.deepcopy(self.messages_history[-1])
+
+    def start_new_chat(self) -> None:
+        self.messages_history.append([])
+        self.history_token_usage.append(TokenUsage(0, 0, 0))
+
+    def finish_chat_get_response(self) -> str:
+        assert len(self.messages_history) >= 2, "there must more than or equal to 2 messages in history"
+        task_messages = self.messages_history.pop() 
+        self.history_token_usage.pop()
+        response = task_messages[-1]["content"]
+        return response
 
     def _requires_compression(self) -> bool:
         if self._compress_threshold and self.history_token_usage:
