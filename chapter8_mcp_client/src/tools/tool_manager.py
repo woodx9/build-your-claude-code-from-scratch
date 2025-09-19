@@ -6,6 +6,7 @@ from tools.todo_write import TodoWrite
 class ToolManager:
     _instance = None
     _initialized = False
+    _mcp_client = None
     
     def __new__(cls):
         if cls._instance is None:
