@@ -36,7 +36,8 @@ This project demonstrates the progressive development of AI agents, from basic t
 ├── chapter4_history_control/     # Advanced agent with conversation history management
 ├── chapter5_smart_context/       # Smart context management with intelligent cropping
 ├── chapter6_to_do_write/         # Task management with TodoWrite tool
-└── chapter7_sub_agent/           # Sub-agent architecture with task delegation [NEW]
+└── chapter7_sub_agent/           # Sub-agent architecture with task delegation
+└── chapter8_mcp_client/         # MCP (Model Context Protocol) client implementation [NEW]
 ```
 
 ### Chapter 1: Tool Call API Fundamentals
@@ -87,6 +88,14 @@ This project demonstrates the progressive development of AI agents, from basic t
 - **Async tool system** converting all tools to support proper concurrency
 - **Task delegation flow** for decomposing complex workflows into manageable units
 - **Specialization benefits** with concurrent execution and resource isolation
+
+### Chapter 8: MCP Client Implementation
+- **MCP Protocol Support** for connecting to external Model Context Protocol servers
+- **Dynamic Tool Loading** with automatic discovery and integration of MCP tools
+- **Multi-Server Support** connecting to multiple MCP servers simultaneously
+- **Unified Tool Interface** seamlessly integrating external MCP tools with built-in tools
+- **Configuration-Driven Setup** easy management of MCP servers via JSON configuration
+- **Sample MCP Servers** including weather forecasting and calculator implementations
 
 
 ## Prerequisites
