@@ -123,7 +123,7 @@ class Conversation:
 
         request = {
             "messages": self._get_messages_with_cache_mark(),
-            "tools": self._tool_manager.get_tools_description(),
+            "tools": await self._tool_manager.get_tools_description(),
         }
         
         # Start assistant response
@@ -287,7 +287,7 @@ class Conversation:
                 success=True, 
                 result=str(tool_response)
             )
-            self._add_tool_response(tool_call, json.dumps(tool_response), is_last_tool)
+            self._add_tool_response(tool_call, str(tool_response), is_last_tool)
         except Exception as e:
             # Enhanced error handling for tool execution
             self._ui_manager.show_tool_execution(

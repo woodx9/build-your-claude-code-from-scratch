@@ -1,0 +1,13 @@
+{
+	"mcpServers": {
+		"weather": {
+			"type": "stdio",
+			"command": "/home/woodx/anaconda3/envs/agentLearning/bin/python",
+			"args": ["/home/woodx/workspace/agentLearning/chapter8_mcp_client/src/mcp_servers/weather.py"]
+		},
+		"caculator": {
+			"command": "/home/woodx/anaconda3/envs/agentLearning/bin/python",
+			"args": ["/home/woodx/workspace/agentLearning/chapter8_mcp_client/src/mcp_servers/caculator.py"]
+		}
+	}
+}
