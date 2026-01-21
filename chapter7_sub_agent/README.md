@@ -21,7 +21,7 @@ Chapter 7 implements a sub-agent architecture that allows the main agent to dele
 
 #### 3. Conversation Updates (`src/core/conversation.py`)
 - **New method**: `async def start_task(self, task_system_prompt, user_input)`
-- **Task mode**: `_is_in_task` flag prevents user input during sub-agent execution
+- **Task depth tracking**: `_task_depth` counter tracks nesting level for nested sub-agent support
 - **Integration**: Sub-agents run in isolated conversation sessions
 
 #### 4. HistoryManager Extensions (`src/core/history/history_manager.py`)
@@ -49,6 +49,24 @@ User Request → Main Agent → Task Tool → SubagentManager → New Conversati
 3. **Autonomous Execution**: Sub-agent runs independently with full tool access
 4. **Result Return**: Sub-agent completes task and returns structured response
 5. **Integration**: Main agent receives results and continues workflow
+
+### 🔗 Nested Sub-Agent Support
+
+Sub-agents can delegate tasks to their own sub-agents, creating a hierarchy:
+
+```
+Main Agent (_task_depth = 0)
+  └─► Sub-agent (_task_depth = 1)
+       └─► Sub-sub-agent (_task_depth = 2)
+       ◄─┘ returns (_task_depth = 1)
+  ◄─┘ returns (_task_depth = 0)
+```
+
+**Implementation Details**:
+- `_task_depth` counter replaces simple boolean flag for proper nesting
+- Incremented when entering a task, decremented when exiting
+- Prevents user input prompts in nested scenarios
+- History stack (`messages_history`) maintains separate context for each nesting level
 
 ### 🚀 Benefits
 

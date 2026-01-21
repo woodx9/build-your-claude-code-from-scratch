@@ -21,7 +21,7 @@
 
 #### 3. Conversation 更新 (`src/core/conversation.py`)
 - **新方法**：`async def start_task(self, task_system_prompt, user_input)`
-- **任务模式**：`_is_in_task` 标志防止子智能体执行期间的用户输入
+- **任务深度追踪**：`_task_depth` 计数器追踪嵌套层级，支持嵌套子智能体
 - **集成**：子智能体在隔离的对话会话中运行
 
 #### 4. HistoryManager 扩展 (`src/core/history/history_manager.py`)
@@ -49,6 +49,24 @@
 3. **自主执行**：子智能体独立运行，具有完整的工具访问权限
 4. **结果返回**：子智能体完成任务并返回结构化响应
 5. **集成**：主智能体接收结果并继续工作流程
+
+### 🔗 嵌套子智能体支持
+
+子智能体可以将任务委托给自己的子智能体，形成层级结构：
+
+```
+主智能体 (_task_depth = 0)
+  └─► 子智能体 (_task_depth = 1)
+       └─► 子子智能体 (_task_depth = 2)
+       ◄─┘ 返回 (_task_depth = 1)
+  ◄─┘ 返回 (_task_depth = 0)
+```
+
+**实现细节**：
+- `_task_depth` 计数器替代简单的布尔标志，实现正确的嵌套支持
+- 进入任务时递增，退出任务时递减
+- 防止嵌套场景中的用户输入提示
+- 历史堆栈（`messages_history`）为每个嵌套层级维护独立的上下文
 
 ### 🚀 优势
 
