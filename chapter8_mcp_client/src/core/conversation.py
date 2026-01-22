@@ -27,7 +27,7 @@ class Conversation:
     _ui_manager = None
     _history_manager = None
     _prompt_manager = None
-    _is_in_task = False
+    _task_depth = 0  # Counter for nested task depth (0 = main conversation)
 
     def __new__(cls):
         """Singleton pattern implementation."""
@@ -84,7 +84,7 @@ class Conversation:
     async def start_task(self, task_system_prompt: str, user_input: str) -> str:
         """Start a new task conversation."""
         # Initialize with system message
-        self._is_in_task = True
+        self._task_depth += 1  # Increment depth for nested task tracking
         self._history_manager.start_new_chat()
         system_message = {
             "role": "system", 
@@ -107,8 +107,9 @@ class Conversation:
         except Exception as e:
             self._ui_manager.print_error(f"System error occurred during running task: {e}")
             traceback.print_exc()
+            self._task_depth -= 1  # Decrement on error to maintain correct depth
             sys.exit(1)
-        self._is_in_task = False
+        self._task_depth -= 1  # Decrement depth when task completes
         return self._history_manager.finish_chat_get_response()
         
 
@@ -219,7 +220,7 @@ class Conversation:
         else:
             self._print_context_window_and_total_cost()
             # No tool calls, wait for user input
-            if self._is_in_task:
+            if self._task_depth > 0:  # In a nested task, return to parent
                 return
             user_input = await self._ui_manager.get_user_input()
             user_message = {
